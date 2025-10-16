@@ -1,61 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>HESPOR Finance — Eligibility Form</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hespor Finance — Eligibility Form</title>
 
-  <!-- Google tag (gtag.js) -->
+  <!-- Google Tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17625592669"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){ dataLayer.push(arguments); }
+    function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', 'AW-17625592669'); // global tag on all pages
+    gtag('config', 'AW-17625592669');
   </script>
 
-  <link rel="preload" href="styles.css" as="style">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <main class="wrap">
-    <!-- LEFT: FORM -->
+    <!-- LEFT SIDE: FORM -->
     <section class="form-side">
       <header class="brand">
-        <img src="hespor-logo.png" alt="HESPOR Finance" class="logo" />
+        <img src="hespor-logo.png" alt="Hespor Finance" class="logo" />
       </header>
 
       <h1>Check Your Eligibility</h1>
       <p class="subtitle">
-        90–120 day supplier terms (no interest, no collateral) for qualified Amazon,
-        Shopify & Walmart sellers.
+        Apply for 90–120 day payment terms from your Chinese suppliers — no interest, no collateral.
       </p>
 
-      <form id="lead-form" action="/api/submit-form" method="POST" novalidate>
+      <form id="lead-form" novalidate>
         <div class="field">
-          <label for="company">Company Name *</label>
-          <input id="company" name="company" required autocomplete="organization" />
+          <label>Company Name *</label>
+          <input name="company" required />
         </div>
 
         <div class="field">
-          <label for="country">Company Registered Country</label>
-          <input id="country" name="country" autocomplete="country-name" />
+          <label>Company Registered Country</label>
+          <input name="country" />
         </div>
 
         <div class="field">
-          <label for="founded">Company Year Established *</label>
-          <input id="founded" name="founded" type="date" required />
+          <label>Company Year Established *</label>
+          <input type="date" name="founded" required />
         </div>
 
         <div class="field">
-          <label for="website">Company Website</label>
-          <input id="website" name="website" type="url" placeholder="https://…" />
+          <label>Company Website</label>
+          <input type="url" name="website" placeholder="https://..." />
         </div>
 
         <div class="field">
-          <label for="businessType">Primary Business Type</label>
-          <select id="businessType" name="businessType">
-            <option value="">Select…</option>
+          <label>Primary Business Type</label>
+          <select name="businessType">
+            <option value="">Select...</option>
             <option>Amazon FBA</option>
             <option>Shopify / DTC</option>
             <option>Walmart Marketplace</option>
@@ -66,54 +64,52 @@
         </div>
 
         <div class="field">
-          <label for="avgImport">Average Monthly Import Volume (USD) *</label>
-          <input id="avgImport" name="avgImport" type="number" min="0" step="1000" required />
+          <label>Average Monthly Import Volume (USD) *</label>
+          <input type="number" name="avgImport" min="0" step="1000" required />
         </div>
 
         <div class="field">
-          <label for="revenue">Approx. Revenue in the Last Fiscal Year (USD) *</label>
-          <input id="revenue" name="revenue" type="number" min="0" step="1000" required />
-          <small class="hint">Note: minimum eligibility starts at $500,000 annual revenue.</small>
+          <label>Approximate Revenue in the Last Fiscal Year (USD) *</label>
+          <input type="number" id="revenue" name="revenue" min="0" step="1000" required />
+          <small class="hint">Minimum eligibility starts at $500,000 annual revenue.</small>
         </div>
 
         <div class="field radios">
-          <span class="label">Do you currently work with suppliers in China? *</span>
+          <span>Do you currently work with suppliers in China? *</span>
           <label><input type="radio" name="chinaSuppliers" value="Yes" required /> Yes</label>
           <label><input type="radio" name="chinaSuppliers" value="No" /> No</label>
         </div>
 
         <div class="grid2">
           <div class="field">
-            <label for="email">Work Email *</label>
-            <input id="email" name="email" type="email" autocomplete="email" required />
+            <label>Work Email *</label>
+            <input type="email" name="email" required />
           </div>
           <div class="field">
-            <label for="whatsapp">WhatsApp (with country code)</label>
-            <input id="whatsapp" name="whatsapp" inputmode="tel" placeholder="+1 555 000 0000" />
+            <label>WhatsApp (with country code)</label>
+            <input name="whatsapp" placeholder="+1 604 000 0000" />
           </div>
         </div>
 
         <div class="field">
-          <label for="message">Message or Notes</label>
-          <textarea id="message" name="message" rows="4" placeholder="Anything else we should know?"></textarea>
+          <label>Message or Notes</label>
+          <textarea name="message" rows="3" placeholder="Anything else we should know?"></textarea>
         </div>
 
         <button class="cta" type="submit">Submit</button>
-
         <p id="eligibilityNote" class="note" hidden>
-          Unfortunately, based on the revenue entered, you may not be eligible at this time.
+          Unfortunately, based on your revenue, you may not be eligible at this time.
         </p>
       </form>
     </section>
 
-    <!-- RIGHT: VERTICAL PHOTO -->
-    <aside class="image-side" aria-hidden="true">
-      <img src="hero.jpg" alt="" />
+    <!-- RIGHT SIDE: IMAGE -->
+    <aside class="image-side">
+      <img src="hero.jpg" alt="Hespor Finance" />
     </aside>
   </main>
 
   <script>
-    // Front-end eligibility note (server still validates)
     const form = document.getElementById('lead-form');
     const revenue = document.getElementById('revenue');
     const note = document.getElementById('eligibilityNote');
@@ -121,6 +117,22 @@
     form.addEventListener('input', () => {
       const val = Number(revenue.value || 0);
       note.hidden = !(val > 0 && val < 500000);
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(form).entries());
+      const res = await fetch('/api/submit-form', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data),
+      });
+      const result = await res.json();
+      if (result.success) {
+        window.location.href = '/thank-you.html';
+      } else {
+        alert(result.message || 'Something went wrong. Please try again.');
+      }
     });
   </script>
 </body>
