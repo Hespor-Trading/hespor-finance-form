@@ -6,52 +6,37 @@ export default async function handler(req, res) {
   }
 
   const {
-    company,
-    country,
-    founded,
-    website,
-    businessType,
-    avgImport,
-    revenue,
-    chinaSuppliers,
-    email,
-    whatsapp,
-    message,
+    company, country, founded, website, businessType,
+    avgImport, revenue, chinaSuppliers, email, whatsapp, message
   } = req.body;
 
-  // Step 1: Eligibility check
+  // Eligibility check
   if (Number(revenue) < 500000) {
     return res.status(200).json({
       success: false,
-      message:
-        "Unfortunately, based on your annual revenue, you are not eligible for 90–120 day payment terms.",
+      message: "Unfortunately, based on your annual revenue, you are not eligible for 90–120 day payment terms.",
     });
   }
 
   try {
-    // Step 2: Validate ENV variables
-    if (
-      !process.env.FROM_EMAIL ||
-      !process.env.APP_PASSWORD ||
-      !process.env.TO_EMAIL
-    ) {
-      throw new Error("Missing email credentials in environment variables");
+    if (!process.env.SMTP_USER || !process.env.SMTP_PASS || !process.env.TO_EMAIL) {
+      throw new Error("Missing SMTP credentials in environment variables");
     }
 
-    // Step 3: Setup Gmail SMTP transporter
+    // Gmail SMTP transporter
     const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 465,
+      host: process.env.SMTP_HOST || "smtp.gmail.com",
+      port: Number(process.env.SMTP_PORT) || 465,
       secure: true,
       auth: {
-        user: process.env.FROM_EMAIL,
-        pass: process.env.APP_PASSWORD,
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
       },
     });
 
-    // Step 4: Compose email
+    // Compose email
     const mailOptions = {
-      from: process.env.FROM_EMAIL,
+      from: process.env.SMTP_USER,
       to: process.env.TO_EMAIL,
       subject: "New Hespor Finance Lead Form Submission",
       html: `
@@ -70,15 +55,10 @@ export default async function handler(req, res) {
       `,
     };
 
-    // Step 5: Send email
     await transporter.sendMail(mailOptions);
-
     return res.status(200).json({ success: true });
   } catch (error) {
     console.error("Email sending failed:", error);
-    return res.status(500).json({
-      success: false,
-      error: error.message,
-    });
+    return res.status(500).json({ success: false, error: error.message });
   }
 }
