@@ -19,32 +19,46 @@ export default async function handler(req, res) {
     message,
   } = req.body;
 
-  // Eligibility check
+  // Step 1: Eligibility check
   if (Number(revenue) < 500000) {
     return res.status(200).json({
       success: false,
-      message: "Not eligible — revenue below $500k.",
+      message:
+        "Unfortunately, based on your annual revenue, you are not eligible for 90–120 day payment terms.",
     });
   }
 
   try {
+    // Step 2: Validate ENV variables
+    if (
+      !process.env.FROM_EMAIL ||
+      !process.env.APP_PASSWORD ||
+      !process.env.TO_EMAIL
+    ) {
+      throw new Error("Missing email credentials in environment variables");
+    }
+
+    // Step 3: Setup Gmail SMTP transporter
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
       auth: {
         user: process.env.FROM_EMAIL,
         pass: process.env.APP_PASSWORD,
       },
     });
 
+    // Step 4: Compose email
     const mailOptions = {
       from: process.env.FROM_EMAIL,
       to: process.env.TO_EMAIL,
-      subject: "New Hespor Finance Form Submission",
+      subject: "New Hespor Finance Lead Form Submission",
       html: `
         <h2>New Submission</h2>
         <p><b>Company:</b> ${company}</p>
         <p><b>Country:</b> ${country}</p>
-        <p><b>Year Established:</b> ${founded}</p>
+        <p><b>Founded:</b> ${founded}</p>
         <p><b>Website:</b> ${website}</p>
         <p><b>Business Type:</b> ${businessType}</p>
         <p><b>Avg Import Volume:</b> $${avgImport}</p>
@@ -56,11 +70,15 @@ export default async function handler(req, res) {
       `,
     };
 
+    // Step 5: Send email
     await transporter.sendMail(mailOptions);
 
-    res.status(200).json({ success: true, message: "Email sent successfully" });
+    return res.status(200).json({ success: true });
   } catch (error) {
-    console.error("Email error:", error);
-    res.status(500).json({ success: false, error: error.message });
+    console.error("Email sending failed:", error);
+    return res.status(500).json({
+      success: false,
+      error: error.message,
+    });
   }
 }
