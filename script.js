@@ -1,72 +1,43 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>HESPOR Finance — Eligibility Form</title>
-  <meta name="description" content="Check eligibility for 90–120 day supplier terms backed by Sinosure. Amazon, Shopify & Walmart sellers." />
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body>
-  <header class="site-header">
-    <div class="wrap header-inner">
-      <img src="hespor-logo.png" alt="HESPOR Finance" class="logo" />
-      <a class="cta-link" href="https://hespor.com" target="_blank" rel="noopener">hespor.com</a>
-    </div>
-  </header>
+// year stamp
+document.getElementById('year').textContent = new Date().getFullYear();
 
-  <main class="wrap">
-    <section class="hero">
-      <div class="hero-left">
-        <h1>Apply for 90–120 Day Supplier Terms</h1>
-        <p class="sub">Government-backed trade-credit (Sinosure). No interest. No collateral.</p>
+const form = document.getElementById('eligibilityForm');
 
-        <form id="eligibilityForm" novalidate>
-          <div class="grid-2">
-            <label>Company Name*<input name="company_name" required /></label>
-            <label>Company Registered Country<input name="company_country" /></label>
-            <label>Company Year Established*<input name="year_established" type="date" required /></label>
-            <label>Company Website<input name="company_website" type="url" placeholder="https://example.com" /></label>
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
 
-            <label>Primary Business Type
-              <select name="business_type">
-                <option value="">Select…</option><option>Amazon FBA</option>
-                <option>Shopify DTC</option><option>Walmart Marketplace</option>
-                <option>Wholesale / B2B</option><option>Other eCommerce</option>
-              </select>
-            </label>
-            <label>Average Monthly Import Volume (USD)*<input name="avg_monthly_import" type="number" min="0" step="0.01" required /></label>
+  const submitBtn = form.querySelector('button[type="submit"]');
 
-            <label>Approx. Revenue (Last Fiscal Year, USD)* 
-              <input name="annual_revenue" id="annual_revenue" type="number" min="0" step="0.01" required />
-            </label>
-            <label>Currently working with suppliers in China?*
-              <select name="china_suppliers" required><option value="">Select…</option><option>Yes</option><option>No</option></select>
-            </label>
+  // Eligibility check: minimum $500,000 last fiscal year
+  const revenue = parseFloat((form.annual_revenue.value || '0').replace(/,/g, ''));
+  if (isFinite(revenue) && revenue < 500000) {
+    alert('Unfortunately, you are not eligible at this time (minimum revenue: $500,000 USD).');
+    return;
+  }
 
-            <label>Contact Email*<input name="email" type="email" required /></label>
-            <label>WhatsApp (with country code, optional)<input name="whatsapp" type="tel" placeholder="+1 555 123 4567" /></label>
-          </div>
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Submitting…';
 
-          <label>Message or Notes
-            <textarea name="message" rows="4" placeholder="Tell us about your product, supplier, timelines…"></textarea>
-          </label>
+  try {
+    const payload = Object.fromEntries(new FormData(form).entries());
 
-          <button type="submit" class="btn-primary">Submit</button>
-          <p class="fineprint">By submitting, you agree to be contacted by email and (if provided) WhatsApp.</p>
-        </form>
-      </div>
+    const resp = await fetch('/api/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
 
-      <div class="hero-right">
-        <img src="hero.jpg" alt="Trade finance with Chinese suppliers" />
-      </div>
-    </section>
-  </main>
-
-  <footer class="site-footer">
-    <div class="wrap footer-inner"><p>© <span id="year"></span> HESPOR Finance</p></div>
-  </footer>
-
-  <script src="script.js"></script>
-</body>
-</html>
+    if (resp.ok) {
+      window.location.href = '/thank-you.html';
+    } else {
+      const t = await resp.text();
+      alert('Submission failed: ' + t);
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit';
+    }
+  } catch (err) {
+    alert('Submission failed. Please try again.');
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Submit';
+  }
+});
