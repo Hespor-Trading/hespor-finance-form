@@ -1,17 +1,20 @@
-// Footer year
+// footer year
 document.getElementById('y').textContent = new Date().getFullYear();
 
-// Eligibility gate: block if last fiscal revenue < 500k
-const form = document.getElementById('leadForm');
+const form = document.getElementById('lead-form');
 const revenueInput = document.getElementById('revenue');
-const msg = document.getElementById('eligibilityMessage');
+const msg = document.getElementById('eligibility-msg');
 
 form.addEventListener('submit', (e) => {
-  const rev = Number(revenueInput.value || 0);
-  if (rev < 500000) {
+  const revenue = Number(revenueInput.value || 0);
+  if (revenue < 500000) {
     e.preventDefault();
     msg.hidden = false;
-    msg.textContent = "Unfortunately, you’re not eligible yet. Current program requires at least $500,000 in revenue in the last fiscal year. Please check back as we expand eligibility.";
-    msg.scrollIntoView({behavior:'smooth', block:'center'});
+    msg.style.color = '#b91c1c';
+    msg.textContent = 'Unfortunately, applicants with less than USD 500,000 in last fiscal-year revenue are not yet eligible. Please reach out to info@hespor.com and we’ll notify you when criteria expand.';
+    revenueInput.focus();
+    revenueInput.scrollIntoView({behavior:'smooth', block:'center'});
+  } else {
+    msg.hidden = true; // allow submit
   }
 });
