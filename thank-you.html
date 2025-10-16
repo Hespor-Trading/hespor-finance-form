@@ -5,14 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Thank You — HESPOR Finance</title>
   <link rel="stylesheet" href="/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Google Ads global site tag -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17652592669"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'AW-17652592669');
+    // Conversion event (REPLACE XXXXX_CONV_LABEL with your actual label from Google Ads)
+    gtag('event', 'conversion', {'send_to': 'AW-17652592669/XXXXX_CONV_LABEL'});
+  </script>
 </head>
 <body>
-  <main class="container" style="padding:56px 0 80px;max-width:720px">
-    <img src="/hespor-logo.png" alt="HESPOR Finance" style="height:40px" />
-    <h1>Thank you — application received.</h1>
-    <p>We’ll review your details and contact you at the email provided. If you entered a WhatsApp number, our team may also reach out there.</p>
-    <p>Questions? Email <a href="mailto:info@hespor.com">info@hespor.com</a>.</p>
-    <p><a class="btn btn-primary" href="/">Back to form</a></p>
+  <main class="wrap">
+    <section class="pane pane-form" style="margin:38px 0">
+      <img src="/hespor-logo.png" alt="HESPOR Finance" class="logo" style="height:40px">
+      <h1>Thanks — your application was received.</h1>
+      <p>We’ll email you shortly. If you left a WhatsApp number, our team may reach out there as well.</p>
+      <p><a class="btn-primary" href="/">Back to form</a></p>
+    </section>
   </main>
 </body>
 </html>
