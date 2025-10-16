@@ -3,123 +3,121 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Check Eligibility | HESPOR Finance</title>
-  <meta name="description" content="Qualify for 90–120 day supplier payment terms backed by Sinosure. Amazon, Shopify, and Walmart sellers in the US & Canada." />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <title>HESPOR Finance — Eligibility Form</title>
+  <meta name="description" content="Check eligibility for Sinosure-backed payment terms (90–120 days) for Amazon, Shopify, and Walmart sellers importing from China. No interest, no collateral." />
+  <link rel="preload" as="image" href="/hero.jpg" />
   <link rel="stylesheet" href="/styles.css" />
-
-  <!-- Optional: Google tag (replace with your actual tag if you want tracking here, too) -->
-  <!--
-  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17652592669"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'AW-17652592669');
-  </script>
-  -->
 </head>
 <body>
-  <header class="hero">
-    <img src="/hero.jpg" alt="Global trade finance" class="hero-img" />
-    <div class="hero-overlay">
-      <img src="/hespor-logo.svg" class="logo" alt="HESPOR Finance" />
-      <h1>Eligibility Check</h1>
-      <p>Zero-collateral 90–120 day terms with Chinese suppliers — backed by Sinosure.</p>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="/">
+        <img src="/hespor-logo.png" class="logo" alt="HESPOR Finance" />
+      </a>
+      <h1 class="page-title">Eligibility Check</h1>
     </div>
   </header>
 
-  <main class="container">
-    <form id="leadForm" class="card" method="POST" action="https://formspree.io/f/REPLACE_ME">
-      <!-- Replace action with your own endpoint (Formspree, Basin, WordPress, etc.) -->
-      <h2>Tell us about your business</h2>
-
-      <div class="grid">
-        <label class="field">
-          <span>Company Name *</span>
-          <input type="text" name="company_name" required />
-        </label>
-
-        <label class="field">
-          <span>Registered Country *</span>
-          <input type="text" name="registered_country" required />
-        </label>
-
-        <label class="field">
-          <span>Year Established *</span>
-          <input type="date" name="year_established" required />
-        </label>
-
-        <label class="field">
-          <span>Company Website</span>
-          <input type="url" name="website" placeholder="https://example.com" />
-        </label>
-
-        <label class="field">
-          <span>Primary Business Type *</span>
-          <select name="business_type" required>
-            <option value="" disabled selected>Select</option>
-            <option>Amazon FBA Seller</option>
-            <option>Shopify Brand</option>
-            <option>Walmart Marketplace Seller</option>
-            <option>Distributor / Wholesaler</option>
-            <option>Other eCommerce</option>
-          </select>
-        </label>
-
-        <label class="field">
-          <span>Average Monthly Import Volume (USD) *</span>
-          <input type="number" name="avg_monthly_import_usd" min="0" step="1" required />
-        </label>
-
-        <label class="field">
-          <span>Approx. Revenue in the Last Fiscal Year (USD) *</span>
-          <input type="number" id="revenue" name="last_year_revenue_usd" min="0" step="1" required />
-        </label>
-
-        <fieldset class="field">
-          <legend>Do you currently work with suppliers in China? *</legend>
-          <div class="inline">
-            <label><input type="radio" name="work_with_china" value="Yes" required /> Yes</label>
-            <label><input type="radio" name="work_with_china" value="No" required /> No</label>
-          </div>
-        </fieldset>
-
-        <label class="field">
-          <span>Contact Email *</span>
-          <input type="email" name="email" required />
-        </label>
-
-        <label class="field">
-          <span>WhatsApp Number (optional, with country code)</span>
-          <input type="tel" name="whatsapp" placeholder="+1 555 555 5555" />
-        </label>
-
-        <label class="field" style="grid-column: 1 / -1;">
-          <span>Message or Notes</span>
-          <textarea name="message" rows="4" placeholder="Anything else we should know?"></textarea>
-        </label>
-
-        <label class="checkbox" style="grid-column: 1 / -1;">
-          <input type="checkbox" name="consent" required />
-          <span>I agree to be contacted via email and (optionally) WhatsApp about eligibility and next steps.</span>
-        </label>
+  <main>
+    <section class="hero">
+      <div class="hero-media" role="img" aria-label="Global trade & financing background"></div>
+      <div class="hero-overlay"></div>
+      <div class="container hero-content">
+        <h2>Apply for 90–120 Day Supplier Terms</h2>
+        <p>Government-backed (Sinosure) payment terms for qualified importers. No interest. No collateral.</p>
       </div>
+    </section>
 
-      <div id="eligibility" class="notice" hidden></div>
+    <section class="container form-wrap">
+      <form id="leadForm" class="card" method="POST" action="https://formspree.io/f/REPLACE_WITH_YOUR_ID">
+        <!-- Formspree meta -->
+        <input type="hidden" name="_subject" value="New Eligibility Submission — HESPOR Finance" />
+        <input type="hidden" name="_redirect" value="/thank-you.html" />
+        <input type="text" name="_gotcha" class="honeypot" autocomplete="off" tabindex="-1" aria-hidden="true" />
 
-      <button type="submit" class="btn">Submit</button>
+        <div class="grid">
+          <label class="field">
+            <span>Company Name <b>*</b></span>
+            <input type="text" name="company_name" required />
+          </label>
 
-      <!-- Honeypot to block bots -->
-      <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off" />
-      <!-- After successful Formspree submission, this page will redirect -->
-      <input type="hidden" name="_redirect" value="/thank-you.html" />
-    </form>
+          <label class="field">
+            <span>Company Registered Country</span>
+            <input type="text" name="registered_country" />
+          </label>
+
+          <label class="field">
+            <span>Company Year Established <b>*</b></span>
+            <input type="date" name="year_established" required />
+          </label>
+
+          <label class="field">
+            <span>Company Website</span>
+            <input type="url" name="company_website" placeholder="https://yourbrand.com" />
+          </label>
+
+          <label class="field">
+            <span>Primary Business Type</span>
+            <select name="primary_business_type">
+              <option value="">Select…</option>
+              <option>Amazon FBA Seller</option>
+              <option>Shopify DTC Brand</option>
+              <option>Walmart Marketplace Seller</option>
+              <option>Wholesale / B2B</option>
+              <option>Aggregator</option>
+              <option>Other</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Average Monthly Import Volume (USD) <b>*</b></span>
+            <input type="number" min="0" step="1" name="avg_monthly_import_usd" required />
+          </label>
+
+          <label class="field">
+            <span>Approx. Revenue in the Last Fiscal Year (USD) <b>*</b></span>
+            <input id="revenue" type="number" min="0" step="1" name="last_fiscal_revenue_usd" required />
+          </label>
+
+          <fieldset class="field">
+            <legend>Do you currently work with suppliers in China? <b>*</b></legend>
+            <label class="radio"><input type="radio" name="works_with_china" value="Yes" required /> Yes</label>
+            <label class="radio"><input type="radio" name="works_with_china" value="No" required /> No</label>
+          </fieldset>
+
+          <label class="field">
+            <span>Contact Name <b>*</b></span>
+            <input type="text" name="contact_name" required />
+          </label>
+
+          <label class="field">
+            <span>Business Email <b>*</b></span>
+            <input type="email" name="email" required />
+          </label>
+
+          <label class="field">
+            <span>WhatsApp Number (optional, with country code)</span>
+            <input type="tel" name="whatsapp" placeholder="+1 555 123 4567" />
+          </label>
+
+          <label class="field field--full">
+            <span>Message or Notes</span>
+            <textarea name="message" rows="4" placeholder="Anything we should know? Product category, volumes, timelines, etc."></textarea>
+          </label>
+        </div>
+
+        <div id="eligibilityMessage" class="notice" hidden></div>
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+        <p class="tiny">By submitting, you agree to be contacted by email and (if provided) WhatsApp.</p>
+      </form>
+    </section>
   </main>
 
-  <footer class="footer">
-    <p>© <span id="y"></span> HESPOR Finance • Sinosure-backed trade credit solutions</p>
+  <footer class="site-footer">
+    <div class="container">
+      <p>© <span id="y"></span> HESPOR Finance. All rights reserved.</p>
+    </div>
   </footer>
 
   <script src="/script.js"></script>
