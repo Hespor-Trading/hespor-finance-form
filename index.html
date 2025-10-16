@@ -1,72 +1,122 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>HESPOR Finance — Eligibility Form</title>
-  <meta name="description" content="Check eligibility for 90–120 day supplier terms backed by Sinosure. Amazon, Shopify & Walmart sellers." />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="preload" href="styles.css" as="style">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header class="site-header">
-    <div class="wrap header-inner">
-      <img src="hespor-logo.png" alt="HESPOR Finance" class="logo" />
-      <a class="cta-link" href="https://hespor.com" target="_blank" rel="noopener">hespor.com</a>
-    </div>
-  </header>
-
   <main class="wrap">
-    <section class="hero">
-      <div class="hero-left">
-        <h1>Apply for 90–120 Day Supplier Terms</h1>
-        <p class="sub">Government-backed trade-credit (Sinosure). No interest. No collateral.</p>
+    <!-- LEFT: FORM -->
+    <section class="form-side">
+      <header class="brand">
+        <img src="hespor-logo.png" alt="HESPOR Finance" class="logo" />
+      </header>
 
-        <form id="eligibilityForm" novalidate>
-          <div class="grid-2">
-            <label>Company Name*<input name="company_name" required /></label>
-            <label>Company Registered Country<input name="company_country" /></label>
-            <label>Company Year Established*<input name="year_established" type="date" required /></label>
-            <label>Company Website<input name="company_website" type="url" placeholder="https://example.com" /></label>
+      <h1>Check Your Eligibility</h1>
+      <p class="subtitle">
+        90–120 day supplier terms (no interest, no collateral) for qualified Amazon,
+        Shopify & Walmart sellers.
+      </p>
 
-            <label>Primary Business Type
-              <select name="business_type">
-                <option value="">Select…</option><option>Amazon FBA</option>
-                <option>Shopify DTC</option><option>Walmart Marketplace</option>
-                <option>Wholesale / B2B</option><option>Other eCommerce</option>
-              </select>
-            </label>
-            <label>Average Monthly Import Volume (USD)*<input name="avg_monthly_import" type="number" min="0" step="0.01" required /></label>
+      <form id="lead-form" action="/api/submit-form" method="POST" novalidate>
+        <!-- Company -->
+        <div class="field">
+          <label for="company">Company Name *</label>
+          <input id="company" name="company" required autocomplete="organization" />
+        </div>
 
-            <label>Approx. Revenue (Last Fiscal Year, USD)* 
-              <input name="annual_revenue" id="annual_revenue" type="number" min="0" step="0.01" required />
-            </label>
-            <label>Currently working with suppliers in China?*
-              <select name="china_suppliers" required><option value="">Select…</option><option>Yes</option><option>No</option></select>
-            </label>
+        <div class="field">
+          <label for="country">Company Registered Country</label>
+          <input id="country" name="country" autocomplete="country-name" />
+        </div>
 
-            <label>Contact Email*<input name="email" type="email" required /></label>
-            <label>WhatsApp (with country code, optional)<input name="whatsapp" type="tel" placeholder="+1 555 123 4567" /></label>
+        <div class="field">
+          <label for="founded">Company Year Established *</label>
+          <input id="founded" name="founded" type="date" required />
+        </div>
+
+        <div class="field">
+          <label for="website">Company Website</label>
+          <input id="website" name="website" type="url" placeholder="https://…" />
+        </div>
+
+        <div class="field">
+          <label for="businessType">Primary Business Type</label>
+          <select id="businessType" name="businessType">
+            <option value="">Select…</option>
+            <option>Amazon FBA</option>
+            <option>Shopify / DTC</option>
+            <option>Walmart Marketplace</option>
+            <option>Wholesale / B2B</option>
+            <option>Aggregator</option>
+            <option>Other</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="avgImport">Average Monthly Import Volume (USD) *</label>
+          <input id="avgImport" name="avgImport" type="number" min="0" step="1000" required />
+        </div>
+
+        <div class="field">
+          <label for="revenue">Approx. Revenue in the Last Fiscal Year (USD) *</label>
+          <input id="revenue" name="revenue" type="number" min="0" step="1000" required />
+          <small class="hint">Note: minimum eligibility starts at $500,000 annual revenue.</small>
+        </div>
+
+        <div class="field radios">
+          <span class="label">Do you currently work with suppliers in China? *</span>
+          <label><input type="radio" name="chinaSuppliers" value="Yes" required /> Yes</label>
+          <label><input type="radio" name="chinaSuppliers" value="No" /> No</label>
+        </div>
+
+        <div class="grid2">
+          <div class="field">
+            <label for="email">Work Email *</label>
+            <input id="email" name="email" type="email" autocomplete="email" required />
           </div>
+          <div class="field">
+            <label for="whatsapp">WhatsApp (with country code)</label>
+            <input id="whatsapp" name="whatsapp" inputmode="tel" placeholder="+1 555 000 0000" />
+          </div>
+        </div>
 
-          <label>Message or Notes
-            <textarea name="message" rows="4" placeholder="Tell us about your product, supplier, timelines…"></textarea>
-          </label>
+        <div class="field">
+          <label for="message">Message or Notes</label>
+          <textarea id="message" name="message" rows="4" placeholder="Anything else we should know?"></textarea>
+        </div>
 
-          <button type="submit" class="btn-primary">Submit</button>
-          <p class="fineprint">By submitting, you agree to be contacted by email and (if provided) WhatsApp.</p>
-        </form>
-      </div>
+        <button class="cta" type="submit">Submit</button>
 
-      <div class="hero-right">
-        <img src="hero.jpg" alt="Trade finance with Chinese suppliers" />
-      </div>
+        <p id="eligibilityNote" class="note" hidden>
+          Unfortunately, based on the revenue entered, you may not be eligible at this time.
+        </p>
+      </form>
     </section>
+
+    <!-- RIGHT: VERTICAL PHOTO -->
+    <aside class="image-side" aria-hidden="true">
+      <img src="hero.jpg" alt="" />
+    </aside>
   </main>
 
-  <footer class="site-footer">
-    <div class="wrap footer-inner"><p>© <span id="year"></span> HESPOR Finance</p></div>
-  </footer>
+  <script>
+    // Front-end eligibility check (non-blocking; server still validates)
+    const form = document.getElementById('lead-form');
+    const revenue = document.getElementById('revenue');
+    const note = document.getElementById('eligibilityNote');
 
-  <script src="script.js"></script>
+    form.addEventListener('input', () => {
+      const val = Number(revenue.value || 0);
+      if (!isNaN(val) && val > 0 && val < 500000) {
+        note.hidden = false;
+      } else {
+        note.hidden = true;
+      }
+    });
+  </script>
 </body>
 </html>
