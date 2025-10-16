@@ -1,132 +1,145 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Check Eligibility — HESPOR Finance</title>
-  <link rel="stylesheet" href="/styles.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <title>Hespor Finance – Check Eligibility</title>
+  <link rel="icon" href="/hespor-logo.png">
+  <style>
+    :root {
+      --blue: #1e3a8a;
+      --text: #0b1220;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+      background: #fff;
+      color: var(--text);
+    }
+    header {
+      padding: 20px 40px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header img { height: 40px; }
+    main {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: stretch;
+      min-height: calc(100vh - 80px);
+    }
+    form {
+      padding: 40px;
+      max-width: 500px;
+      margin: auto;
+    }
+    h1 {
+      font-size: 28px;
+      color: var(--blue);
+      margin-bottom: 16px;
+    }
+    label {
+      display: block;
+      margin: 12px 0 4px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 15px;
+    }
+    button {
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 18px;
+      width: 100%;
+    }
+    .hero {
+      background: url('/hero.jpg') center/cover no-repeat;
+    }
+    @media (max-width: 900px) {
+      main { grid-template-columns: 1fr; }
+      .hero { height: 220px; }
+    }
+  </style>
 </head>
+
 <body>
-  <header class="site-header">
-    <div class="wrap">
-      <img src="/hespor-logo.png" alt="HESPOR Finance" class="logo">
-      <div class="brand">HESPOR <span>Finance</span></div>
-    </div>
+  <header>
+    <img src="/hespor-logo.png" alt="Hespor Logo">
   </header>
 
-  <main class="wrap">
-    <section class="split">
-      <!-- LEFT: FORM -->
-      <div class="pane pane-form">
-        <h1>Apply for 90–120 Day Supplier Terms</h1>
-        <p class="sub">No loans. No interest. Government-backed trade-credit insurance.</p>
+  <main>
+    <section>
+      <form action="https://formspree.io/f/xzzjoedw" method="POST" id="eligibilityForm">
+        <input type="hidden" name="_redirect" value="https://finance.hespor.com/thank-you.html">
 
-        <form id="lead-form"
-              action="https://formspree.io/f/xzzjoedw"
-              method="POST"
-              novalidate>
-          <!-- Redirect to our thank-you page after Formspree success -->
-          <input type="hidden" name="_redirect" value="/thank-you.html" />
-          <input type="hidden" name="_subject" value="New HESPOR Finance Application" />
+        <h1>Check Your Eligibility</h1>
+        <label>Company Name *</label>
+        <input type="text" name="company_name" required>
 
-          <div class="grid-2">
-            <label class="field">
-              <span>Company Name *</span>
-              <input type="text" name="company_name" required autocomplete="organization">
-            </label>
+        <label>Company Registered Country</label>
+        <input type="text" name="registered_country">
 
-            <label class="field">
-              <span>Registered Country *</span>
-              <input type="text" name="registered_country" required autocomplete="country-name">
-            </label>
-          </div>
+        <label>Company Year Established *</label>
+        <input type="date" name="year_established" required>
 
-          <div class="grid-2">
-            <label class="field">
-              <span>Year Established *</span>
-              <input type="date" name="year_established" required>
-            </label>
+        <label>Company Website</label>
+        <input type="url" name="company_website">
 
-            <label class="field">
-              <span>Company Website</span>
-              <input type="url" name="company_website" placeholder="https://">
-            </label>
-          </div>
+        <label>Primary Business Type</label>
+        <select name="business_type">
+          <option value="">Select</option>
+          <option>Manufacturer</option>
+          <option>Trader</option>
+          <option>Retailer</option>
+          <option>Amazon/Walmart Seller</option>
+        </select>
 
-          <label class="field">
-            <span>Primary Business Type</span>
-            <select name="business_type">
-              <option value="">Select…</option>
-              <option>Amazon FBA Seller</option>
-              <option>Shopify/DTC Brand</option>
-              <option>Walmart Marketplace Seller</option>
-              <option>Distributor/Wholesaler</option>
-              <option>Other eCommerce</option>
-            </select>
-          </label>
+        <label>Average Monthly Import Volume (USD) *</label>
+        <input type="number" name="import_volume" required>
 
-          <div class="grid-2">
-            <label class="field">
-              <span>Average Monthly Import Volume (USD) *</span>
-              <input type="number" name="avg_import_usd" inputmode="numeric" min="0" step="1000" required placeholder="e.g., 50000">
-            </label>
+        <label>Approximate Revenue in the Last Fiscal Year (USD) *</label>
+        <input type="number" name="annual_revenue" required>
 
-            <label class="field">
-              <span>Revenue in Last Fiscal Year (USD) *</span>
-              <input type="number" id="revenue" name="last_year_revenue_usd" inputmode="numeric" min="0" step="1000" required placeholder="e.g., 750000">
-            </label>
-          </div>
+        <label>Do you currently work with suppliers in China?</label>
+        <select name="china_suppliers">
+          <option value="">Select</option>
+          <option>Yes</option>
+          <option>No</option>
+        </select>
 
-          <label class="field">
-            <span>Do you currently work with suppliers in China? *</span>
-            <div class="radio-row">
-              <label><input type="radio" name="works_with_china" value="Yes" required> Yes</label>
-              <label><input type="radio" name="works_with_china" value="No" required> No</label>
-            </div>
-          </label>
+        <label>WhatsApp (Optional, include country code)</label>
+        <input type="text" name="whatsapp">
 
-          <div class="grid-2">
-            <label class="field">
-              <span>Contact Email *</span>
-              <input type="email" name="email" required autocomplete="email">
-            </label>
+        <label>Message or Note</label>
+        <textarea name="message" rows="4"></textarea>
 
-            <label class="field">
-              <span>WhatsApp (optional, with country code)</span>
-              <input type="tel" name="whatsapp" placeholder="+1 415 555 0123" autocomplete="tel">
-            </label>
-          </div>
-
-          <label class="field">
-            <span>Message or Notes</span>
-            <textarea name="message" rows="4" placeholder="Anything we should know?"></textarea>
-          </label>
-
-          <div class="disclaimer">
-            By submitting, you agree to be contacted by email and (if provided) WhatsApp regarding your application.
-          </div>
-
-          <button type="submit" class="btn-primary">Check Eligibility</button>
-
-          <p id="eligibility-msg" class="eligibility-msg" hidden></p>
-        </form>
-      </div>
-
-      <!-- RIGHT: VERTICAL IMAGE (uses landscape hero.jpg but crops vertically) -->
-      <aside class="pane pane-img" aria-hidden="true">
-        <div class="img-cover" role="img" aria-label="eCommerce logistics and finance image"></div>
-      </aside>
+        <button type="submit">Submit</button>
+      </form>
     </section>
+    <aside class="hero"></aside>
   </main>
 
-  <footer class="site-footer">
-    <div class="wrap">
-      © <span id="y"></span> HESPOR Finance — info@hespor.com
-    </div>
-  </footer>
-
-  <script src="/script.js"></script>
+  <script>
+    document.getElementById('eligibilityForm').addEventListener('submit', function(e) {
+      const revenue = parseFloat(document.querySelector('input[name="annual_revenue"]').value);
+      if (revenue < 500000) {
+        e.preventDefault();
+        alert('Unfortunately, you are not eligible at this time (minimum revenue: $500,000 USD).');
+      }
+    });
+  </script>
 </body>
 </html>
