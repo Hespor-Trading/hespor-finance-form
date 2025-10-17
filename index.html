@@ -1,62 +1,93 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Hespor Finance — Eligibility Form</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Hespor Finance – Sinosure-Backed 90–120 Day Terms</title>
+  <meta name="description" content="Access Sinosure-backed trade credit insurance and 90–120-day supplier payment terms. Collateral-free, secure, and fast approval for Amazon, Shopify, and Walmart sellers." />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css" />
 
-  <!-- Google Tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17625592669"></script>
+  <!-- Global site tag (replace IDs) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-XXXXXXXXXX"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'AW-17625592669');  /* global tag */
+    gtag("js", new Date());
+    gtag("config","AW-XXXXXXXXXX");
+    gtag("config","G-YYYYYYYYYY");
   </script>
-
-  <link rel="stylesheet" href="/styles.css" />
 </head>
-<body>
-  <main class="container">
-    <header class="hero">
-      <img src="/hespor-logo.png" alt="Hespor Finance" class="logo" />
-      <h1>Unlock 90–120-Day Sinosure-Backed Supplier Terms</h1>
-      <p class="sub">Eligibility form — fast review, no collateral required</p>
-    </header>
+<body class="light">
+  <div class="split">
+    <!-- LEFT: form/content -->
+    <main class="left">
+      <header class="topbar">
+        <a class="brand" href="/">Hespor Finance</a>
+        <nav class="nav"><a href="#apply">Apply</a></nav>
+      </header>
 
-    <form id="leadForm" class="card" novalidate>
-      <div class="grid">
-        <label>Full name
-          <input name="name" type="text" required />
-        </label>
+      <section class="intro">
+        <h1>Unlock 90–120-Day <span class="accent">Sinosure-Backed</span> Supplier Credit</h1>
+        <p class="sub">Collateral-free, insured terms for Amazon, Shopify, and Walmart sellers importing from China.</p>
+      </section>
 
-        <label>Work email
-          <input name="email" type="email" required />
-        </label>
+      <section id="apply" class="form-area">
+        <h2>Apply in Minutes</h2>
+        <p class="muted">Qualified buyers typically have annual revenue ≥ <strong>$500,000</strong>.</p>
 
-        <label>Company name
-          <input name="company" type="text" required />
-        </label>
+        <form id="leadForm" novalidate>
+          <div class="grid-2">
+            <label>Full name
+              <input type="text" name="name" required placeholder="Jane Doe" />
+            </label>
 
-        <label>Annual revenue (USD, last 12 mo)
-          <input name="annualRevenue" type="number" min="0" step="1" required />
-        </label>
-      </div>
+            <label>Business email
+              <input type="email" name="email" required placeholder="you@company.com" />
+            </label>
 
-      <label>Message (optional)
-        <textarea name="message" rows="4" placeholder="Tell us about your suppliers and current terms…"></textarea>
-      </label>
+            <label>Company name
+              <input type="text" name="company" required placeholder="Your Company Ltd." />
+            </label>
 
-      <button type="submit" class="btn">Check eligibility</button>
-      <p class="legal">By submitting, you agree to be contacted by Hespor Finance. We are an independent consultant, not a lender or insurer.</p>
-    </form>
+            <label>Phone (WhatsApp OK)
+              <input type="tel" name="phone" placeholder="+1 236 866 1249" />
+            </label>
+          </div>
 
-    <footer class="foot">© <span id="y"></span> Hespor Finance — Part of the Hespor network</footer>
-  </main>
+          <label>Last year revenue (USD)
+            <input type="number" name="revenue" required min="0" step="1" placeholder="500000" />
+          </label>
 
-  <script>
-    document.getElementById('y').textContent = new Date().getFullYear();
-  </script>
+          <label>Tell us about your products / suppliers
+            <textarea name="message" rows="4" placeholder="Factories in China, current terms, marketplaces…"></textarea>
+          </label>
+
+          <label class="check">
+            <input type="checkbox" name="consent" required />
+            I agree to be contacted and to the site’s Terms & Privacy.
+          </label>
+
+          <button id="submitBtn" type="submit" class="btn">Submit application</button>
+          <p id="formNote" class="note" role="alert" hidden></p>
+        </form>
+
+        <p class="tiny">
+          Finance.Hespor.com is part of the Hespor network. We act as an independent consultant; we are not a lender or an insurer. No guarantees of approval.
+        </p>
+      </section>
+
+      <footer class="foot">
+        <span>© <span id="year"></span> Hespor Finance</span>
+        <a href="https://hespor.com">hespor.com</a>
+        <a href="https://wa.me/12368661249" rel="noopener">WhatsApp</a>
+      </footer>
+    </main>
+
+    <!-- RIGHT: vertical image -->
+    <aside class="right-image" aria-hidden="true"></aside>
+  </div>
+
   <script src="/script.js" defer></script>
 </body>
 </html>
