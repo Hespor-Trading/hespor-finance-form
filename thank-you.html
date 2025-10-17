@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Thank You — HESPOR Finance</title>
+  <title>Thank You — Hespor Finance</title>
 
   <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17625592669"></script>
@@ -11,33 +11,21 @@
     window.dataLayer = window.dataLayer || [];
     function gtag(){ dataLayer.push(arguments); }
     gtag('js', new Date());
-    gtag('config', 'AW-17625592669'); // global tag present on conversion page
+    gtag('config', 'AW-17625592669'); /* global tag present on conversion page */
 
-    // If you later switch to "set up with code" (not URL),
-    // replace XXXXX with your conversion label and uncomment:
-    // gtag('event', 'conversion', { 'send_to': 'AW-17625592669/XXXXXXXXXXX' });
+    /* If you switch to “set up with code”, add your conversion label here:
+    gtag('event', 'conversion', { 'send_to': 'AW-17625592669/REPLACE_LABEL' });
+    */
   </script>
 
-  <style>
-    :root{ --ink:#0f172a; --muted:#6b7280; --brand:#1d4ed8; }
-    *{box-sizing:border-box}
-    body{margin:0; font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif; color:var(--ink); background:#fff;}
-    main{min-height:100dvh; display:grid; place-items:center; padding:32px;}
-    .card{max-width:760px; width:100%; border:1px solid #e5e7eb; border-radius:18px; padding:28px; text-align:center; box-shadow:0 10px 30px rgba(2,6,23,.05);}
-    .logo{height:40px; margin-bottom:10px;}
-    h1{font-size:clamp(24px,3.2vw,34px); margin:8px 0 6px;}
-    p{color:var(--muted); margin:6px 0 0;}
-    .cta{display:inline-block; margin-top:18px; padding:12px 16px; border-radius:12px; background:linear-gradient(135deg,#1d4ed8,#0ea5e9); color:#fff; text-decoration:none; font-weight:700;}
-  </style>
+  <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
-  <main>
-    <div class="card">
-      <img class="logo" src="hespor-logo.png" alt="HESPOR Finance">
-      <h1>Thanks — your form was submitted.</h1>
-      <p>Our team will reach out via email and (if provided) WhatsApp shortly.</p>
-      <a class="cta" href="/">Back to Eligibility</a>
-    </div>
+  <main class="container center">
+    <img src="/hespor-logo.png" alt="Hespor" class="logo" />
+    <h1>Thanks — your request was received.</h1>
+    <p>We’ll review your eligibility and contact you by email within 1–2 business days.</p>
+    <a class="btn" href="/">Back to homepage</a>
   </main>
 </body>
 </html>
