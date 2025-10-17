@@ -1,37 +1,64 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("leadForm");
+(function(){
+  const form = document.getElementById('leadForm');
+  const btn  = document.getElementById('submitBtn');
+  const note = document.getElementById('formNote');
+  const year = document.getElementById('year');
+  if (year) year.textContent = new Date().getFullYear();
+
+  const show = (msg, isError=true) => {
+    note.textContent = msg;
+    note.hidden = false;
+    note.style.color = isError ? '#ef4444' : '#10b981';
+  };
+
   if (!form) return;
 
-  form.addEventListener("submit", async (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    note.hidden = true;
 
     const fd = new FormData(form);
     const payload = Object.fromEntries(fd.entries());
+    payload.revenue = Number(payload.revenue || 0);
+    payload.consent = !!payload.consent;
 
-    // ✅ Eligibility check
-    const revenue = Number((payload.annualRevenue || "").toString().replace(/[^0-9.]/g, ""));
-    if (!revenue || revenue < 500000) {
-      alert("Unfortunately, you’re not eligible at this time (revenue under $500,000 USD in the last 12 months).");
-      return false;
+    // basic client validation
+    if (!payload.name || !payload.email || !payload.company || !payload.revenue){
+      show('Please complete all required fields.');
+      return;
     }
+
+    btn.disabled = true; btn.textContent = 'Submitting…';
 
     try {
-      const res = await fetch("/api/submit-form", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+      const res = await fetch('/api/submit-form', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
       });
 
-      if (res.ok) {
-        // ✅ Redirect to finance.hespor.com/thank-you after success
-        window.location.href = "https://finance.hespor.com/thank-you";
-      } else {
-        alert("Something went wrong. Please try again.");
-      }
-    } catch (err) {
-      alert("Something went wrong. Please try again.");
-    }
+      const data = await res.json();
 
-    return false; // Prevent default form reload
+      if (!res.ok || !data.success){
+        throw new Error(data.message || 'Submission failed.');
+      }
+
+      // Fire an optional GA/Ads event on submit
+      if (window.gtag) gtag('event','lead_submit',{event_category:'form',value:1});
+
+      if (data.eligible) {
+        // Redirect to clean URL (thanks to vercel.json)
+        window.location.href = '/thank-you';
+      } else {
+        show('Thanks! For revenue under $500,000, we’ll reach out with alternatives. You will not be redirected to the thank-you page.', false);
+        form.reset();
+      }
+
+    } catch (err) {
+      console.error(err);
+      show('Something went wrong. Please try again in a moment.');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Submit application';
+    }
   });
-});
+})();
