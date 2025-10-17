@@ -1,5 +1,10 @@
 {
-  "redirects": [
-    { "source": "/thank-you", "destination": "/thank-you.html" }
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "routes": [
+    { "src": "^/thank-you$", "dest": "/thank-you.html" },
+    { "src": "^/thank-you/$", "dest": "/thank-you.html" },
+
+    { "src": "/(.*)", "dest": "https://finance-hespor.my.canva.site/$1" }
   ]
 }
