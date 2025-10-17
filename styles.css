@@ -1,30 +1,62 @@
+/* ====== theme ====== */
 :root{
-  --bg:#0b0d10; --card:#12161b; --text:#eaf1f7; --muted:#aab7c4; --brand:#10b981;
-  --focus:#7dd3fc; --danger:#ef4444;
+  --bg:#ffffff;
+  --ink:#0b1220;
+  --muted:#5a6678;
+  --brand:#0ea371;            /* emerald */
+  --line:#e7ecf2;
+  --field:#ffffff;
+  --focus:#5cc8ff;
+  --danger:#e11d48;
+  --shadow:0 10px 30px rgba(20,37,63,.08);
+  /* set your side image here (update path to your actual file) */
+  --side-img:url('/img/finance-vertical.jpg');
 }
+
 *{box-sizing:border-box}
-html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial}
-a{color:var(--text);text-decoration:none}
-.container{max-width:1080px;margin:0 auto;padding:16px}
-.header,.footer{display:flex;justify-content:space-between;align-items:center}
-.brand{font-weight:700}
-.nav a{margin-left:16px;opacity:.9}
-.hero{padding:64px 16px}
-.hero h1{font-size:clamp(28px,5vw,44px);line-height:1.1;margin:0 0 12px}
-.sub{color:var(--muted);max-width:720px}
-.highlight{color:var(--brand)}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin:24px 0}
-.card{background:var(--card);border:1px solid #1f2937;border-radius:16px;padding:20px}
-.form-wrap{margin:24px 0}
-form{background:var(--card);border:1px solid #1f2937;border-radius:16px;padding:20px}
+html,body{margin:0;padding:0}
+body.light{background:var(--bg);color:var(--ink);font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial}
+
+/* ====== split layout ====== */
+.split{display:grid;grid-template-columns:1fr 42vw;min-height:100dvh}
+@media (max-width: 980px){
+  .split{grid-template-columns:1fr}
+  .right-image{display:none}
+}
+
+.left{display:flex;flex-direction:column;min-height:100dvh}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:20px 28px;border-bottom:1px solid var(--line)}
+.brand{font-weight:700;color:var(--ink);text-decoration:none}
+.nav a{color:var(--ink);opacity:.8;text-decoration:none}
+
+.intro{padding:36px 28px 0 28px;max-width:860px}
+.intro h1{margin:0 0 8px;font-size:clamp(26px,4vw,44px);line-height:1.12}
+.accent{color:var(--brand)}
+.sub{color:var(--muted);max-width:720px;margin:0}
+
+.form-area{padding:22px 28px 10px;max-width:860px}
+form{background:var(--field);border:1px solid var(--line);border-radius:16px;padding:22px 18px;box-shadow:var(--shadow)}
 label{display:block;font-weight:600;margin:10px 0 6px}
-input,textarea,select{width:100%;padding:12px;border-radius:12px;border:1px solid #27313d;background:#0f1318;color:var(--text)}
-input:focus,textarea:focus{outline:2px solid var(--focus);border-color:transparent}
-.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-.check{display:flex;align-items:center;gap:8px;font-weight:400}
-.btn{display:inline-block;background:var(--brand);color:#04110a;font-weight:700;padding:12px 18px;border-radius:12px;border:none;cursor:pointer;margin-top:8px}
+input,textarea,select{width:100%;padding:12px 12px;border-radius:12px;border:1px solid var(--line);background:#fff;color:var(--ink)}
+input:focus,textarea:focus{outline:2px solid var(--focus);border-color:transparent;box-shadow:0 0 0 3px rgba(92,200,255,.2)}
+.grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:700px){.grid-2{grid-template-columns:1fr}}
+.check{display:flex;align-items:center;gap:8px;font-weight:400;margin-top:6px}
+
+.btn{display:inline-block;background:var(--brand);color:#04110a;font-weight:700;padding:12px 18px;border-radius:12px;border:none;cursor:pointer;margin-top:10px}
 .btn[disabled]{opacity:.5;cursor:not-allowed}
 .note{margin-top:10px;color:var(--danger)}
+.muted{color:var(--muted)}
 .tiny{color:var(--muted);font-size:12px;margin-top:12px}
-.center{min-height:60vh;display:grid;place-items:center;text-align:center;gap:12px}
-footer a{opacity:.9}
+
+.foot{margin-top:auto;padding:16px 28px;border-top:1px solid var(--line);display:flex;gap:16px;align-items:center}
+
+/* ====== right image column ====== */
+.right-image{
+  background-image:var(--side-img);
+  background-size:cover;
+  background-repeat:no-repeat;
+  background-position:center;
+  min-height:100%;
+  border-left:1px solid var(--line);
+}
