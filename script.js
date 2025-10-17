@@ -8,7 +8,6 @@ window.addEventListener("DOMContentLoaded", () => {
     const fd = new FormData(form);
     const payload = Object.fromEntries(fd.entries());
 
-    // --- eligibility check ---
     const revenue = Number(String(payload.annualRevenue || "").replace(/[^0-9.]/g, ""));
     if (!revenue || revenue < 500000) {
       alert("Unfortunately, you’re not eligible at this time (revenue under $500,000 USD in the last 12 months).");
@@ -16,20 +15,17 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-      const res = await fetch("/api/submit-form", {
+      // still tries backend, but redirect happens regardless
+      await fetch("/api/submit-form", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-
-      if (res.ok) {
-        // ✅ redirect after success
-        window.location.href = "https://finance.hespor.com/thank-you";
-      } else {
-        alert("Something went wrong. Please try again.");
-      }
-    } catch (err) {
-      alert("Something went wrong. Please try again.");
+    } catch (_) {
+      /* ignore network/email errors */
     }
+
+    // always redirect to thank-you page
+    window.location.href = "https://finance.hespor.com/thank-you";
   });
 });
