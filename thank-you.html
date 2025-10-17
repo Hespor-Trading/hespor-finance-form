@@ -1,31 +1,46 @@
-window.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("leadForm");
-  if (!form) return;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Thank You | HESPOR Finance</title>
 
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
+  <!-- Google tag (AW) — needed so URL-based conversion can fire on this page -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17652592669"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'AW-17652592669'); // no label needed for URL-based conversion
+  </script>
 
-    const fd = new FormData(form);
-    const payload = Object.fromEntries(fd.entries());
-
-    const revenue = Number(String(payload.annualRevenue || "").replace(/[^0-9.]/g, ""));
-    if (!revenue || revenue < 500000) {
-      alert("Unfortunately, you’re not eligible at this time (revenue under $500,000 USD in the last 12 months).");
-      return;
+  <style>
+    :root { --bg:#f6f7fb; --card:#ffffff; --text:#111827; --muted:#6b7280; --brand:#1d4ed8; }
+    html,body{height:100%}
+    body{
+      margin:0; background:var(--bg); color:var(--text);
+      font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+      display:flex; align-items:center; justify-content:center; padding:24px;
     }
-
-    try {
-      // still tries backend, but redirect happens regardless
-      await fetch("/api/submit-form", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-    } catch (_) {
-      /* ignore network/email errors */
+    .card{
+      background:var(--card); width:100%; max-width:720px; border-radius:20px;
+      box-shadow:0 10px 30px rgba(0,0,0,.08); padding:40px; text-align:center;
     }
-
-    // always redirect to thank-you page
-    window.location.href = "https://finance.hespor.com/thank-you";
-  });
-});
+    .logo{height:26px; opacity:.9; margin-bottom:18px}
+    h1{font-size:clamp(22px,3vw,32px); margin:6px 0 10px}
+    p{color:var(--muted); margin:0 0 26px}
+    .btn{
+      display:inline-block; background:var(--brand); color:#fff; text-decoration:none;
+      padding:12px 18px; border-radius:10px; font-weight:600;
+    }
+  </style>
+</head>
+<body>
+  <main class="card" role="main" aria-labelledby="ty-title">
+    <img class="logo" src="/hespor-logo.png" alt="HESPOR Finance logo" />
+    <h1 id="ty-title">Thanks — your form was submitted.</h1>
+    <p>Our team will reach out via email and (if provided) WhatsApp shortly.</p>
+    <a class="btn" href="https://finance.hespor.com">Back to Eligibility</a>
+  </main>
+</body>
+</html>
