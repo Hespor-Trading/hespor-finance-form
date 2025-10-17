@@ -1,31 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Thank You — Hespor Finance</title>
+window.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("leadForm");
+  if (!form) return;
 
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17625592669"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){ dataLayer.push(arguments); }
-    gtag('js', new Date());
-    gtag('config', 'AW-17625592669'); /* global tag present on conversion page */
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-    /* If you switch to “set up with code”, add your conversion label here:
-    gtag('event', 'conversion', { 'send_to': 'AW-17625592669/REPLACE_LABEL' });
-    */
-  </script>
+    const fd = new FormData(form);
+    const payload = Object.fromEntries(fd.entries());
 
-  <link rel="stylesheet" href="/styles.css" />
-</head>
-<body>
-  <main class="container center">
-    <img src="/hespor-logo.png" alt="Hespor" class="logo" />
-    <h1>Thanks — your request was received.</h1>
-    <p>We’ll review your eligibility and contact you by email within 1–2 business days.</p>
-    <a class="btn" href="/">Back to homepage</a>
-  </main>
-</body>
-</html>
+    const revenue = Number(String(payload.annualRevenue || "").replace(/[^0-9.]/g, ""));
+    if (!revenue || revenue < 500000) {
+      alert("Unfortunately, you’re not eligible at this time (revenue under $500,000 USD in the last 12 months).");
+      return;
+    }
+
+    try {
+      // still tries backend, but redirect happens regardless
+      await fetch("/api/submit-form", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+    } catch (_) {
+      /* ignore network/email errors */
+    }
+
+    // always redirect to thank-you page
+    window.location.href = "https://finance.hespor.com/thank-you";
+  });
+});
