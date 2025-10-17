@@ -1,43 +1,43 @@
-// year stamp
-document.getElementById('year').textContent = new Date().getFullYear();
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("leadForm");
+  if (!form) return;
 
-const form = document.getElementById('eligibilityForm');
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
+    const fd = new FormData(form);
+    const payload = Object.fromEntries(fd.entries());
 
-  const submitBtn = form.querySelector('button[type="submit"]');
-
-  // Eligibility check: minimum $500,000 last fiscal year
-  const revenue = parseFloat((form.annual_revenue.value || '0').replace(/,/g, ''));
-  if (isFinite(revenue) && revenue < 500000) {
-    alert('Unfortunately, you are not eligible at this time (minimum revenue: $500,000 USD).');
-    return;
-  }
-
-  submitBtn.disabled = true;
-  submitBtn.textContent = 'Submitting…';
-
-  try {
-    const payload = Object.fromEntries(new FormData(form).entries());
-
-    const resp = await fetch('/api/submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-    if (resp.ok) {
-      window.location.href = '/thank-you.html';
-    } else {
-      const t = await resp.text();
-      alert('Submission failed: ' + t);
-      submitBtn.disabled = false;
-      submitBtn.textContent = 'Submit';
+    // Eligibility check (block under $500k)
+    const revenue = Number(
+      (payload.annualRevenue || "").toString().replace(/[^0-9.]/g, "")
+    );
+    if (!revenue || revenue < 500000) {
+      alert(
+        "Unfortunately you’re not eligible at this time (revenue under $500,000 USD in the last 12 months)."
+      );
+      return;
     }
-  } catch (err) {
-    alert('Submission failed. Please try again.');
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'Submit';
-  }
+
+    try {
+      const res = await fetch("/api/submit-form", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data?.error || "Something went wrong. Please try again.");
+        return;
+        // NOTE: do NOT redirect on error
+      }
+
+      // ✅ Always use ABSOLUTE URL to your Squarespace thank-you page
+      window.location.href = "https://finance.hespor.com/thank-you";
+    } catch (err) {
+      alert("Something went wrong. Please try again.");
+    }
+  });
 });
