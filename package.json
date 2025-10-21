@@ -1,0 +1,8 @@
+{
+  "name": "hespor-finance-form",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "nodemailer": "^6.9.14"
+  }
+}
