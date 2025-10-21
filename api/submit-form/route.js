@@ -2,89 +2,121 @@
 import nodemailer from "nodemailer";
 import { NextResponse } from "next/server";
 
-// Make sure this runs on Node (not Edge), required for nodemailer
-export const runtime = "nodejs";
+const cors = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
 
-export async function POST(req) {
-  try {
-    // ---- read JSON safely
-    let data = null;
-    try {
-      data = await req.json();
-    } catch {
-      return NextResponse.json(
-        { success: false, message: "Invalid JSON body" },
-        { status: 400 }
-      );
+// Accept many common aliases from frontends/Canva/etc.
+function normalize(raw = {}) {
+  const get = (...keys) => {
+    for (const k of keys) {
+      if (raw[k] !== undefined && raw[k] !== "") return raw[k];
     }
+    return undefined;
+  };
 
-    // ---- accept multiple key variants from your form/console tests
-    const name =
-      data.name || data.fullName || data.full_name || data.fullname;
-    const email = data.email;
-    const company = data.company || data.companyName || data.company_name;
-    const revenue =
-      data.revenue || data.annualRevenue || data.annual_revenue;
-    const whatsapp =
-      data.whatsapp ||
-      data.whatsApp ||
-      data.whatsappNumber ||
-      data.phone ||
-      data.phoneNumber;
-    const message =
-      data.message || data.notes || data.additionalInfo || data.additional_info;
+  const fullName = get("fullName", "full_name", "name");
+  const email = get("email", "Email", "eMail");
+  const company = get("company", "Company", "companyName", "company_name");
+  const annualRevenue = get(
+    "annualRevenue",
+    "annual_revenue",
+    "revenue",
+    "Annual Revenue (USD)"
+  );
+  const whatsapp = get("whatsapp", "phone", "phoneNumber", "whatsApp");
+  const notes = get("notes", "message", "Additional Info", "additionalInfo");
 
-    // ---- basic validation
-    if (!name || !email || !company || !revenue) {
-      return NextResponse.json(
-        { success: false, message: "Missing required fields" },
-        { status: 400 }
-      );
-    }
-
-    // ---- mail transport (uses your Vercel env vars)
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST, // smtp.gmail.com
-      port: Number(process.env.SMTP_PORT || 465),
-      secure: true,
-      auth: {
-        user: process.env.SMTP_USER, // info@hespor.com
-        pass: process.env.SMTP_PASS, // 16-char Google App Password (no spaces)
-      },
-    });
-
-    const to = (process.env.TO_EMAIL || process.env.SMTP_USER).split(",");
-    const from = process.env.FROM_EMAIL || process.env.SMTP_USER;
-
-    const subject = `New Hespor Finance Application — ${name}`;
-    const html = `
-      <h2>New Application</h2>
-      <p><b>Name:</b> ${name}</p>
-      <p><b>Email:</b> ${email}</p>
-      <p><b>Company:</b> ${company}</p>
-      <p><b>Annual Revenue (USD):</b> ${revenue}</p>
-      ${whatsapp ? `<p><b>WhatsApp:</b> ${whatsapp}</p>` : ""}
-      ${message ? `<p><b>Message:</b> ${message}</p>` : ""}
-      <hr>
-      <small>Sent from hespor-finance-form</small>
-    `;
-
-    await transporter.sendMail({ from, to, subject, html });
-
-    return NextResponse.json({ success: true, message: "Email sent" });
-  } catch (err) {
-    console.error("Submit error:", err);
-    return NextResponse.json(
-      { success: false, message: "Server error" },
-      { status: 500 }
-    );
-  }
+  return {
+    fullName,
+    email,
+    company,
+    annualRevenue:
+      annualRevenue !== undefined && annualRevenue !== ""
+        ? Number(String(annualRevenue).replace(/[^\d.]/g, ""))
+        : undefined,
+    whatsapp,
+    notes,
+  };
 }
 
-// Optional: tell other methods they’re not allowed
-export async function GET() {
-  return NextResponse.json(
-    { success: false, message: "Method not allowed" },
-    { status: 405 }
+// Parse JSON or form-data safely
+async function readBody(req) {
+  const ct = req.headers.get("content-type") || "";
+  try {
+    if (ct.includes("application/json")) return await req.json();
+    if (ct.includes("application/x-www-form-urlencoded") || ct.includes("multipart/form-data")) {
+      const fd = await req.formData();
+      return Object.fromEntries(fd.entries());
+    }
+  } catch {}
+  return {};
+}
+
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: cors });
+}
+
+export async function POST(req) {
+  const raw = await readBody(req);
+  const data = normalize(raw);
+
+  const missing = ["fullName", "email", "company", "annualRevenue"].filter(
+    (k) => !data[k] && data[k] !== 0
   );
+  if (missing.length) {
+    return NextResponse.json(
+      { success: false, message: `Missing required fields: ${missing.join(", ")}`, received: raw },
+      { status: 400, headers: cors }
+    );
+  }
+
+  // SMTP transporter
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,                  // smtp.gmail.com
+    port: Number(process.env.SMTP_PORT || 465),   // 465
+    secure: Number(process.env.SMTP_PORT || 465) === 465,
+    auth: {
+      user: process.env.SMTP_USER,                // info@hespor.com
+      pass: process.env.SMTP_PASS,                // Gmail App Password
+    },
+  });
+
+  const subject = `New Finance Application — ${data.fullName} (${data.company})`;
+  const text = [
+    `Name: ${data.fullName}`,
+    `Email: ${data.email}`,
+    `Company: ${data.company}`,
+    `Annual Revenue: ${data.annualRevenue}`,
+    `WhatsApp: ${data.whatsapp || "-"}`,
+    `Notes: ${data.notes || "-"}`,
+  ].join("\n");
+
+  const html = `
+    <h2>New Finance Application</h2>
+    <p><b>Name:</b> ${data.fullName}</p>
+    <p><b>Email:</b> ${data.email}</p>
+    <p><b>Company:</b> ${data.company}</p>
+    <p><b>Annual Revenue:</b> ${data.annualRevenue}</p>
+    <p><b>WhatsApp:</b> ${data.whatsapp || "-"}</p>
+    <p><b>Notes:</b><br>${(data.notes || "").replace(/\n/g, "<br>")}</p>
+  `;
+
+  await transporter.sendMail({
+    from: process.env.FROM_EMAIL || process.env.SMTP_USER,
+    to: process.env.TO_EMAIL || process.env.SMTP_USER,
+    subject,
+    text,
+    html,
+    replyTo: data.email,
+  });
+
+  return NextResponse.json({ success: true }, { headers: cors });
+}
+
+// For any other method:
+export default function handler() {
+  return NextResponse.json({ success: false, message: "Method not allowed" }, { status: 405, headers: cors });
 }
