@@ -1,105 +1,145 @@
-// app/api/submit-form/route.js
-import nodemailer from "nodemailer";
+// api/submit-form/route.js
+export const runtime = 'nodejs'; // Nodemailer requires Node runtime
 
-export const dynamic = "force-dynamic"; // ensure it runs on every request
+import nodemailer from 'nodemailer';
 
-function pick(obj, keys) {
-  for (const k of keys) {
-    if (obj?.[k] !== undefined && obj?.[k] !== null && String(obj[k]).trim() !== "") {
-      return obj[k];
-    }
+// Allow Canva + Vercel origins
+const ALLOW_ORIGINS = [
+  'https://finance.hespor.com',
+  'https://www.hespor-finance-form.vercel.app',
+  'https://hespor-finance-form.vercel.app',
+  'http://localhost:3000',
+];
+
+function cors(resp, req) {
+  const origin = req.headers.get('origin') || '';
+  if (ALLOW_ORIGINS.includes(origin)) {
+    resp.headers.set('Access-Control-Allow-Origin', origin);
   }
-  return undefined;
+  resp.headers.set('Access-Control-Allow-Methods', 'POST, OPTIONS, GET');
+  resp.headers.set('Access-Control-Allow-Headers', 'Content-Type');
+  return resp;
+}
+
+export async function OPTIONS(req) {
+  return cors(new Response(null, { status: 204 }), req);
+}
+
+export async function GET(req) {
+  // health check
+  return cors(
+    new Response(JSON.stringify({ ok: true, message: 'submit-form alive' }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    }),
+    req
+  );
 }
 
 export async function POST(req) {
   try {
-    // ---- Parse body safely (JSON or form-encoded) ----
-    const ct = req.headers.get("content-type") || "";
-    let body = {};
-    if (ct.includes("application/json")) {
+    let body;
+    try {
       body = await req.json();
-    } else {
-      const raw = await req.text();
-      try {
-        body = JSON.parse(raw);
-      } catch {
-        body = Object.fromEntries(new URLSearchParams(raw));
-      }
-    }
-
-    // ---- Normalize incoming fields (accept many variants) ----
-    const name = pick(body, ["fullName", "fullname", "full_name", "name"]);
-    const email = pick(body, ["email", "from", "contactEmail"]);
-    const company = pick(body, ["company", "companyName", "company_name"]);
-    const annualRevenueRaw = pick(body, [
-      "annualRevenue",
-      "annual_revenue",
-      "revenue",
-      "Annual Revenue (USD)"
-    ]);
-    const annualRevenue = annualRevenueRaw !== undefined ? Number(String(annualRevenueRaw).replace(/[^\d.]/g, "")) : undefined;
-    const whatsapp = pick(body, ["whatsapp", "whatsappNumber", "phone", "phoneNumber"]);
-    const notes = pick(body, ["notes", "message", "additionalInfo", "Additional Info (optional)"]);
-
-    // ---- Minimal required fields: name + email + company ----
-    const missing = [];
-    if (!name) missing.push("name");
-    if (!email) missing.push("email");
-    if (!company) missing.push("company");
-    if (missing.length) {
-      return Response.json(
-        { success: false, message: `Missing required fields: ${missing.join(", ")}` },
-        { status: 400 }
+    } catch {
+      return cors(
+        new Response(JSON.stringify({ success: false, message: 'Invalid JSON' }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+        req
       );
     }
 
-    // ---- Mail transport (uses your Vercel envs) ----
-    const host = process.env.SMTP_HOST;        // e.g. smtp.gmail.com
-    const port = Number(process.env.SMTP_PORT || 465);
-    const user = process.env.SMTP_USER;        // e.g. info@hespor.com
-    const pass = process.env.SMTP_PASS;        // Gmail App Password
-    const to = process.env.TO_EMAIL || user;   // e.g. info@hespor.com
-    const from = process.env.FROM_EMAIL || user;
+    // Accept multiple key names from different forms
+    const fullName =
+      body.fullName || body.fullname || body.name || body['full-name'] || '';
+    const email = body.email || body.mail || '';
+    const company =
+      body.company || body.companyName || body['company-name'] || '';
+    const annualRevenue =
+      typeof body.annualRevenue === 'number'
+        ? body.annualRevenue
+        : parseFloat(String(body.revenue || body.annual_revenue || '').replace(/[^0-9.]/g, '')) || undefined;
+    const whatsapp = body.whatsapp || body.phone || body.whatsappNumber || '';
+    const notes = body.notes || body.message || body.additionalInfo || '';
 
-    if (!host || !port || !user || !pass || !to || !from) {
-      return Response.json(
-        { success: false, message: "Server email config is incomplete" },
-        { status: 500 }
+    if (!fullName || !email || !company) {
+      return cors(
+        new Response(JSON.stringify({ success: false, message: 'Missing required fields' }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+        req
       );
     }
 
     const transporter = nodemailer.createTransport({
-      host,
-      port,
-      secure: port === 465, // true for 465, false for 587
-      auth: { user, pass },
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT || 465),
+      secure: true, // 465 = SSL
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
     });
 
-    const subject = `New Finance Lead: ${company} (${name})`;
-    const html = `
-      <h2>New Finance Lead</h2>
-      <p><strong>Name:</strong> ${name}</p>
-      <p><strong>Email:</strong> ${email}</p>
-      <p><strong>Company:</strong> ${company}</p>
-      <p><strong>Annual Revenue:</strong> ${annualRevenue ?? "—"}</p>
-      <p><strong>WhatsApp / Phone:</strong> ${whatsapp ?? "—"}</p>
-      <p><strong>Notes:</strong><br>${(notes ?? "").toString().replace(/\n/g, "<br>")}</p>
-    `;
+    // optional: verify SMTP
+    await transporter.verify();
 
-    await transporter.sendMail({ from, to, subject, html });
+    const fromEmail = process.env.FROM_EMAIL || process.env.SMTP_USER;
+    const toEmail = process.env.TO_EMAIL || process.env.SMTP_USER;
 
-    return Response.json({ success: true });
+    const subject = `New Finance Lead: ${fullName} • ${company}`;
+    const lines = [
+      `Full Name: ${fullName}`,
+      `Email: ${email}`,
+      `Company: ${company}`,
+      `Annual Revenue (USD): ${annualRevenue ?? '—'}`,
+      `WhatsApp: ${whatsapp || '—'}`,
+      `Notes: ${notes || '—'}`,
+    ];
+    const text = lines.join('\n');
+    const html =
+      `<h2>New Finance Lead</h2>` +
+      `<ul>` +
+      lines
+        .map((l) => {
+          const [k, ...rest] = l.split(': ');
+          return `<li><strong>${k}:</strong> ${rest.join(': ')}</li>`;
+        })
+        .join('') +
+      `</ul>`;
+
+    await transporter.sendMail({
+      from: `"HESPOR Finance" <${fromEmail}>`,
+      to: toEmail,
+      replyTo: email,
+      subject,
+      text,
+      html,
+    });
+
+    return cors(
+      new Response(JSON.stringify({ success: true }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+      req
+    );
   } catch (err) {
-    console.error("submit-form error:", err);
-    return Response.json(
-      { success: false, message: "Server error" },
-      { status: 500 }
+    // Surface precise error in logs
+    console.error('submit-form error:', err);
+    return cors(
+      new Response(
+        JSON.stringify({
+          success: false,
+          message: 'Server error',
+          detail: (err && err.message) || String(err),
+        }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
+      ),
+      req
     );
   }
-}
-
-// Optional: reject other methods cleanly
-export async function GET() {
-  return Response.json({ success: false, message: "Method not allowed" }, { status: 405 });
 }
