@@ -17,30 +17,17 @@ function setCors(res, origin) {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 }
 
-async function readJson(req) {
-  const chunks = [];
-  for await (const c of req) chunks.push(c);
-  const raw = Buffer.concat(chunks).toString("utf8") || "{}";
-  try { return JSON.parse(raw); } catch { return {}; }
-}
-
 export default async function handler(req, res) {
-  const origin = req.headers.origin || "";
-  setCors(res, origin);
+  setCors(res, req.headers.origin);
 
-  if (req.method === "OPTIONS") return res.status(204).end();
-  if (req.method !== "POST") {
-    return res.status(405).json({ success: false, message: "Method not allowed" });
-  }
+  if (req.method === "OPTIONS") return res.status(200).end();
+  if (req.method !== "POST") return res.status(405).json({ success: false, message: "Method Not Allowed" });
 
-  const body = await readJson(req);
-
-  // Accept both old and new field names
+  const body = typeof req.body === "string" ? JSON.parse(req.body || "{}") : (req.body || {});
   const name    = body.fullName || body.name || "";
   const email   = body.email || "";
-  const company = body.company || body.companyName || "";
-  const revenue =
-    body.annualRevenue ?? body.revenue ?? ""; // may be string or number
+  const company = body.company || "";
+  const revenue = (body.annualRevenue || "").toString();
   const phone   = body.whatsapp || body.phone || "";
   const message = body.notes || body.message || "";
 
@@ -50,31 +37,25 @@ export default async function handler(req, res) {
 
   try {
     const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,             // smtp.gmail.com
+      host: process.env.SMTP_HOST,               // e.g. smtp.gmail.com
       port: Number(process.env.SMTP_PORT || 465),
       secure: Number(process.env.SMTP_PORT || 465) === 465, // true for 465
       auth: {
-        user: process.env.SMTP_USER,           // info@hespor.com
-        pass: process.env.SMTP_PASS,           // 16-char App Password (no spaces)
+        user: process.env.SMTP_USER,             // info@hespor.com
+        pass: process.env.SMTP_PASS,             // Gmail App Password (no spaces)
       },
     });
 
-    const TO = process.env.TO_EMAIL || "info@hespor.com";
-    const FROM = process.env.FROM_EMAIL || process.env.SMTP_USER;
+    // Verify SMTP before sending to surface config errors quickly
+    await transporter.verify();
 
     await transporter.sendMail({
-      from: `HESPOR Finance <${FROM}>`,
-      to: TO,
-      subject: `New Application: ${name} (${company})`,
-      text:
-`Name: ${name}
-Email: ${email}
-Company: ${company}
-Annual Revenue (USD): ${revenue}
-WhatsApp/Phone: ${phone}
-Notes: ${message}`,
+      from: `"Hespor Finance" <${process.env.FROM_EMAIL || process.env.SMTP_USER}>`,
+      to: process.env.TO_EMAIL || process.env.SMTP_USER,
+      replyTo: email,
+      subject: `New Finance Form — ${name} (${company})`,
       html: `
-        <h2>New Finance Application</h2>
+        <h2>New Submission</h2>
         <ul>
           <li><b>Name:</b> ${name}</li>
           <li><b>Email:</b> ${email}</li>
@@ -86,7 +67,7 @@ Notes: ${message}`,
       `,
     });
 
-    // success for front-end (it will redirect)
+    // success → front-end will redirect
     return res.status(200).json({ success: true });
   } catch (err) {
     console.error("Mail error:", err);
