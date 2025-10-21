@@ -1,122 +1,105 @@
-// api/submit-form/route.js
+// app/api/submit-form/route.js
 import nodemailer from "nodemailer";
-import { NextResponse } from "next/server";
 
-const cors = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
-};
+export const dynamic = "force-dynamic"; // ensure it runs on every request
 
-// Accept many common aliases from frontends/Canva/etc.
-function normalize(raw = {}) {
-  const get = (...keys) => {
-    for (const k of keys) {
-      if (raw[k] !== undefined && raw[k] !== "") return raw[k];
+function pick(obj, keys) {
+  for (const k of keys) {
+    if (obj?.[k] !== undefined && obj?.[k] !== null && String(obj[k]).trim() !== "") {
+      return obj[k];
     }
-    return undefined;
-  };
-
-  const fullName = get("fullName", "full_name", "name");
-  const email = get("email", "Email", "eMail");
-  const company = get("company", "Company", "companyName", "company_name");
-  const annualRevenue = get(
-    "annualRevenue",
-    "annual_revenue",
-    "revenue",
-    "Annual Revenue (USD)"
-  );
-  const whatsapp = get("whatsapp", "phone", "phoneNumber", "whatsApp");
-  const notes = get("notes", "message", "Additional Info", "additionalInfo");
-
-  return {
-    fullName,
-    email,
-    company,
-    annualRevenue:
-      annualRevenue !== undefined && annualRevenue !== ""
-        ? Number(String(annualRevenue).replace(/[^\d.]/g, ""))
-        : undefined,
-    whatsapp,
-    notes,
-  };
-}
-
-// Parse JSON or form-data safely
-async function readBody(req) {
-  const ct = req.headers.get("content-type") || "";
-  try {
-    if (ct.includes("application/json")) return await req.json();
-    if (ct.includes("application/x-www-form-urlencoded") || ct.includes("multipart/form-data")) {
-      const fd = await req.formData();
-      return Object.fromEntries(fd.entries());
-    }
-  } catch {}
-  return {};
-}
-
-export async function OPTIONS() {
-  return new NextResponse(null, { status: 204, headers: cors });
+  }
+  return undefined;
 }
 
 export async function POST(req) {
-  const raw = await readBody(req);
-  const data = normalize(raw);
+  try {
+    // ---- Parse body safely (JSON or form-encoded) ----
+    const ct = req.headers.get("content-type") || "";
+    let body = {};
+    if (ct.includes("application/json")) {
+      body = await req.json();
+    } else {
+      const raw = await req.text();
+      try {
+        body = JSON.parse(raw);
+      } catch {
+        body = Object.fromEntries(new URLSearchParams(raw));
+      }
+    }
 
-  const missing = ["fullName", "email", "company", "annualRevenue"].filter(
-    (k) => !data[k] && data[k] !== 0
-  );
-  if (missing.length) {
-    return NextResponse.json(
-      { success: false, message: `Missing required fields: ${missing.join(", ")}`, received: raw },
-      { status: 400, headers: cors }
+    // ---- Normalize incoming fields (accept many variants) ----
+    const name = pick(body, ["fullName", "fullname", "full_name", "name"]);
+    const email = pick(body, ["email", "from", "contactEmail"]);
+    const company = pick(body, ["company", "companyName", "company_name"]);
+    const annualRevenueRaw = pick(body, [
+      "annualRevenue",
+      "annual_revenue",
+      "revenue",
+      "Annual Revenue (USD)"
+    ]);
+    const annualRevenue = annualRevenueRaw !== undefined ? Number(String(annualRevenueRaw).replace(/[^\d.]/g, "")) : undefined;
+    const whatsapp = pick(body, ["whatsapp", "whatsappNumber", "phone", "phoneNumber"]);
+    const notes = pick(body, ["notes", "message", "additionalInfo", "Additional Info (optional)"]);
+
+    // ---- Minimal required fields: name + email + company ----
+    const missing = [];
+    if (!name) missing.push("name");
+    if (!email) missing.push("email");
+    if (!company) missing.push("company");
+    if (missing.length) {
+      return Response.json(
+        { success: false, message: `Missing required fields: ${missing.join(", ")}` },
+        { status: 400 }
+      );
+    }
+
+    // ---- Mail transport (uses your Vercel envs) ----
+    const host = process.env.SMTP_HOST;        // e.g. smtp.gmail.com
+    const port = Number(process.env.SMTP_PORT || 465);
+    const user = process.env.SMTP_USER;        // e.g. info@hespor.com
+    const pass = process.env.SMTP_PASS;        // Gmail App Password
+    const to = process.env.TO_EMAIL || user;   // e.g. info@hespor.com
+    const from = process.env.FROM_EMAIL || user;
+
+    if (!host || !port || !user || !pass || !to || !from) {
+      return Response.json(
+        { success: false, message: "Server email config is incomplete" },
+        { status: 500 }
+      );
+    }
+
+    const transporter = nodemailer.createTransport({
+      host,
+      port,
+      secure: port === 465, // true for 465, false for 587
+      auth: { user, pass },
+    });
+
+    const subject = `New Finance Lead: ${company} (${name})`;
+    const html = `
+      <h2>New Finance Lead</h2>
+      <p><strong>Name:</strong> ${name}</p>
+      <p><strong>Email:</strong> ${email}</p>
+      <p><strong>Company:</strong> ${company}</p>
+      <p><strong>Annual Revenue:</strong> ${annualRevenue ?? "—"}</p>
+      <p><strong>WhatsApp / Phone:</strong> ${whatsapp ?? "—"}</p>
+      <p><strong>Notes:</strong><br>${(notes ?? "").toString().replace(/\n/g, "<br>")}</p>
+    `;
+
+    await transporter.sendMail({ from, to, subject, html });
+
+    return Response.json({ success: true });
+  } catch (err) {
+    console.error("submit-form error:", err);
+    return Response.json(
+      { success: false, message: "Server error" },
+      { status: 500 }
     );
   }
-
-  // SMTP transporter
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,                  // smtp.gmail.com
-    port: Number(process.env.SMTP_PORT || 465),   // 465
-    secure: Number(process.env.SMTP_PORT || 465) === 465,
-    auth: {
-      user: process.env.SMTP_USER,                // info@hespor.com
-      pass: process.env.SMTP_PASS,                // Gmail App Password
-    },
-  });
-
-  const subject = `New Finance Application — ${data.fullName} (${data.company})`;
-  const text = [
-    `Name: ${data.fullName}`,
-    `Email: ${data.email}`,
-    `Company: ${data.company}`,
-    `Annual Revenue: ${data.annualRevenue}`,
-    `WhatsApp: ${data.whatsapp || "-"}`,
-    `Notes: ${data.notes || "-"}`,
-  ].join("\n");
-
-  const html = `
-    <h2>New Finance Application</h2>
-    <p><b>Name:</b> ${data.fullName}</p>
-    <p><b>Email:</b> ${data.email}</p>
-    <p><b>Company:</b> ${data.company}</p>
-    <p><b>Annual Revenue:</b> ${data.annualRevenue}</p>
-    <p><b>WhatsApp:</b> ${data.whatsapp || "-"}</p>
-    <p><b>Notes:</b><br>${(data.notes || "").replace(/\n/g, "<br>")}</p>
-  `;
-
-  await transporter.sendMail({
-    from: process.env.FROM_EMAIL || process.env.SMTP_USER,
-    to: process.env.TO_EMAIL || process.env.SMTP_USER,
-    subject,
-    text,
-    html,
-    replyTo: data.email,
-  });
-
-  return NextResponse.json({ success: true }, { headers: cors });
 }
 
-// For any other method:
-export default function handler() {
-  return NextResponse.json({ success: false, message: "Method not allowed" }, { status: 405, headers: cors });
+// Optional: reject other methods cleanly
+export async function GET() {
+  return Response.json({ success: false, message: "Method not allowed" }, { status: 405 });
 }
