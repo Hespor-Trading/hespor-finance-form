@@ -5,6 +5,10 @@
     { "src": "^/thank-you$", "dest": "/thank-you.html" },
     { "src": "^/thank-you/$", "dest": "/thank-you.html" },
 
+    /* KEEP API ON VERCEL — DO NOT PROXY TO CANVA */
+    { "src": "^/api/(.*)$", "dest": "/api/$1" },
+
+    /* Everything else → Canva */
     { "src": "/(.*)", "dest": "https://finance-hespor.my.canva.site/$1" }
   ]
 }
