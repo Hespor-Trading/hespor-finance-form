@@ -1,45 +1,53 @@
-// script.js (in repo root)
+import nodemailer from "nodemailer";
 
-const API_URL = 'https://hespor-finance-form.vercel.app/api/submit-form';
-const THANK_YOU_URL = 'https://finance.hespor.com/thank-you';
+export default async function handler(req, res) {
+  // ✅ allow both local & production origins
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  if (req.method === "OPTIONS") return res.status(204).end();
 
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById('financeForm');
-  if (!form) return;
+  if (req.method !== "POST") {
+    return res.status(405).json({ success: false, message: "Method not allowed" });
+  }
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
+  try {
+    const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
 
-    const fullName = document.getElementById('fullName')?.value?.trim();
-    const email = document.getElementById('email')?.value?.trim();
-    const company = document.getElementById('company')?.value?.trim();
-    const annualRevenue = Number(
-      document.getElementById('annualRevenue')?.value?.replace(/[^0-9.]/g, '')
-    );
-    const whatsapp = document.getElementById('whatsapp')?.value?.trim() || '';
-    const notes = document.getElementById('notes')?.value?.trim() || '';
+    const { fullName, email, company, annualRevenue, whatsapp, notes } = body || {};
 
     if (!fullName || !email || !company || !annualRevenue) {
-      alert('Please complete Full Name, Email, Company, and Annual Revenue.');
-      return;
+      return res.status(400).json({ success: false, message: "Missing fields" });
     }
 
-    try {
-      const res = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fullName, email, company, annualRevenue, whatsapp, notes }),
-      });
+    // ✅ Gmail SMTP setup
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST || "smtp.gmail.com",
+      port: Number(process.env.SMTP_PORT) || 465,
+      secure: true,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    });
 
-      const data = await res.json().catch(() => ({}));
+    await transporter.sendMail({
+      from: process.env.FROM_EMAIL || process.env.SMTP_USER,
+      to: process.env.TO_EMAIL || "info@hespor.com",
+      subject: `New Application from ${fullName}`,
+      text: `
+Name: ${fullName}
+Email: ${email}
+Company: ${company}
+Annual Revenue: ${annualRevenue}
+WhatsApp: ${whatsapp || "-"}
+Notes: ${notes || "-"}
+      `,
+    });
 
-      if (res.ok && data.success) {
-        window.location.href = THANK_YOU_URL; // ✅ Redirect to Canva thank-you page
-      } else {
-        alert(data?.message || 'Submission failed. Please try again.');
-      }
-    } catch (err) {
-      alert('Network error. Please try again.');
-    }
-  });
-});
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.error("Error sending email:", error);
+    return res.status(500).json({ success: false, message: "Email send failed" });
+  }
+}
