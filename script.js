@@ -4,7 +4,7 @@
     const form = document.getElementById('leadForm');
     if (!form) return;
 
-    const API_URL = '/api/submit-form'; // works on finance.hespor.com because API is in same project
+    const API_URL = 'https://hespor-finance-form.vercel.app/api/submit-form'; // works on finance.hespor.com because API is in same project
 
     form.addEventListener('submit', async function (e) {
       e.preventDefault();
