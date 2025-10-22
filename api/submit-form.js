@@ -1,77 +1,106 @@
-// redeploy trigger
-// /api/submit-form.js
-import nodemailer from "nodemailer";
+// api/submit-form.js
+import nodemailer from 'nodemailer';
 
 const ALLOW_ORIGINS = [
-  "https://finance.hespor.com",
-  "https://hespor-finance-form.vercel.app",
-  "https://www.hespor-finance-form.vercel.app",
-  "http://localhost:3000",
+  'https://finance.hespor.com',
+  'https://hespor-finance-form.vercel.app',
+  'http://localhost:3000'
 ];
 
 function setCors(res, origin) {
-  if (ALLOW_ORIGINS.includes(origin || "")) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
+  if (ALLOW_ORIGINS.includes(origin || '')) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
   }
-  res.setHeader("Vary", "Origin");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader('Vary', 'Origin');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+}
+
+async function readJson(req) {
+  const chunks = [];
+  for await (const c of req) chunks.push(c);
+  const raw = Buffer.concat(chunks).toString('utf8') || '{}';
+  try { return JSON.parse(raw); } catch { return {}; }
 }
 
 export default async function handler(req, res) {
-  setCors(res, req.headers.origin);
+  const origin = req.headers.origin || '';
+  setCors(res, origin);
 
-  if (req.method === "OPTIONS") return res.status(200).end();
-  if (req.method !== "POST") return res.status(405).json({ success: false, message: "Method Not Allowed" });
-
-  const body = typeof req.body === "string" ? JSON.parse(req.body || "{}") : (req.body || {});
-  const name    = body.fullName || body.name || "";
-  const email   = body.email || "";
-  const company = body.company || "";
-  const revenue = (body.annualRevenue || "").toString();
-  const phone   = body.whatsapp || body.phone || "";
-  const message = body.notes || body.message || "";
-
-  if (!name || !email || !company || revenue === "") {
-    return res.status(400).json({ success: false, message: "Missing required fields" });
+  if (req.method === 'OPTIONS') {
+    res.status(204).end();
+    return;
   }
 
+  if (req.method !== 'POST') {
+    res.status(405).json({ success: false, message: 'Method not allowed' });
+    return;
+  }
+
+  const body = await readJson(req);
+
+  // Expect these keys from the frontend
+  const {
+    fullName,
+    email,
+    company,
+    annualRevenue,   // number or string is OK; we normalise
+    whatsapp = '',
+    notes = ''
+  } = body || {};
+
+  if (!fullName || !email || !company || !annualRevenue) {
+    res.status(400).json({ success: false, message: 'Missing required fields' });
+    return;
+  }
+
+  // Build transporter from env
+  const {
+    SMTP_HOST = 'smtp.gmail.com',
+    SMTP_PORT = '465',
+    SMTP_USER,
+    SMTP_PASS,
+    FROM_EMAIL,
+    TO_EMAIL
+  } = process.env;
+
+  if (!SMTP_USER || !SMTP_PASS || !FROM_EMAIL || !TO_EMAIL) {
+    res.status(500).json({ success: false, message: 'Email is not configured' });
+    return;
+  }
+
+  const transporter = nodemailer.createTransport({
+    host: SMTP_HOST,
+    port: Number(SMTP_PORT),
+    secure: true, // 465
+    auth: { user: SMTP_USER, pass: SMTP_PASS }
+  });
+
+  // Email content
+  const html = `
+    <h2>New Financing Lead</h2>
+    <p><b>Full Name:</b> ${fullName}</p>
+    <p><b>Email:</b> ${email}</p>
+    <p><b>Company:</b> ${company}</p>
+    <p><b>Annual Revenue (USD):</b> ${annualRevenue}</p>
+    ${whatsapp ? `<p><b>WhatsApp:</b> ${whatsapp}</p>` : ''}
+    ${notes ? `<p><b>Notes:</b> ${notes}</p>` : ''}
+  `;
+
   try {
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,               // e.g. smtp.gmail.com
-      port: Number(process.env.SMTP_PORT || 465),
-      secure: Number(process.env.SMTP_PORT || 465) === 465, // true for 465
-      auth: {
-        user: process.env.SMTP_USER,             // info@hespor.com
-        pass: process.env.SMTP_PASS,             // Gmail App Password (no spaces)
-      },
-    });
-
-    // Verify SMTP before sending to surface config errors quickly
-    await transporter.verify();
-
     await transporter.sendMail({
-      from: `"Hespor Finance" <${process.env.FROM_EMAIL || process.env.SMTP_USER}>`,
-      to: process.env.TO_EMAIL || process.env.SMTP_USER,
-      replyTo: email,
-      subject: `New Finance Form — ${name} (${company})`,
-      html: `
-        <h2>New Submission</h2>
-        <ul>
-          <li><b>Name:</b> ${name}</li>
-          <li><b>Email:</b> ${email}</li>
-          <li><b>Company:</b> ${company}</li>
-          <li><b>Annual Revenue (USD):</b> ${revenue}</li>
-          <li><b>WhatsApp/Phone:</b> ${phone}</li>
-          <li><b>Notes:</b> ${message}</li>
-        </ul>
-      `,
+      from: FROM_EMAIL,         // MUST equal your Gmail/Google Workspace mailbox
+      to: TO_EMAIL,             // where you receive leads
+      replyTo: email,           // replies go to the lead
+      subject: 'HESPOR Finance – New Lead',
+      html
     });
 
-    // success → front-end will redirect
-    return res.status(200).json({ success: true });
+    // success payload
+    res.status(200).json({ success: true });
   } catch (err) {
-    console.error("Mail error:", err);
-    return res.status(500).json({ success: false, message: "Email send failed" });
+    // surface smtp errors to logs & caller
+    console.error('SMTP ERROR:', err?.message || err);
+    res.status(502).json({ success: false, message: 'Email send failed' });
   }
 }
