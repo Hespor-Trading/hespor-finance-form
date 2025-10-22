@@ -1,14 +1,13 @@
 {
-  "cleanUrls": true,
-  "trailingSlash": false,
+  "version": 2,
   "routes": [
-    { "src": "^/thank-you$", "dest": "/thank-you.html" },
-    { "src": "^/thank-you/$", "dest": "/thank-you.html" },
-
-    /* KEEP API ON VERCEL — DO NOT PROXY TO CANVA */
-    { "src": "^/api/(.*)$", "dest": "/api/$1" },
-
-    /* Everything else → Canva */
-    { "src": "/(.*)", "dest": "https://finance-hespor.my.canva.site/$1" }
-  ]
+    { "src": "^/api/submit-form$", "dest": "/api/submit-form.js" }
+  ],
+  "functions": {
+    "api/**/*.js": {
+      "runtime": "nodejs18.x",
+      "memory": 128,
+      "maxDuration": 10
+    }
+  }
 }
