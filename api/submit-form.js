@@ -1,70 +1,45 @@
-import nodemailer from "nodemailer";
+// script.js (in repo root)
 
-const ALLOW_ORIGINS = [
-  "https://hespor-finance-form.vercel.app",
-  "https://finance.hespor.com",
-  "http://localhost:3000",
-];
+const API_URL = 'https://hespor-finance-form.vercel.app/api/submit-form';
+const THANK_YOU_URL = 'https://finance.hespor.com/thank-you';
 
-function setCors(res, origin) {
-  if (ALLOW_ORIGINS.includes(origin || "")) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  }
-  res.setHeader("Vary", "Origin");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-}
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById('financeForm');
+  if (!form) return;
 
-export default async function handler(req, res) {
-  setCors(res, req.headers.origin);
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-  if (req.method === "OPTIONS") return res.status(204).end();
-  if (req.method !== "POST")
-    return res.status(405).json({ success: false, message: "Method not allowed" });
+    const fullName = document.getElementById('fullName')?.value?.trim();
+    const email = document.getElementById('email')?.value?.trim();
+    const company = document.getElementById('company')?.value?.trim();
+    const annualRevenue = Number(
+      document.getElementById('annualRevenue')?.value?.replace(/[^0-9.]/g, '')
+    );
+    const whatsapp = document.getElementById('whatsapp')?.value?.trim() || '';
+    const notes = document.getElementById('notes')?.value?.trim() || '';
 
-  const body = typeof req.body === "string" ? JSON.parse(req.body || "{}") : (req.body || {});
+    if (!fullName || !email || !company || !annualRevenue) {
+      alert('Please complete Full Name, Email, Company, and Annual Revenue.');
+      return;
+    }
 
-  const fullName = body.fullName ?? "";
-  const email = body.email ?? "";
-  const company = body.company ?? "";
-  const annualRevenue = Number(body.annualRevenue ?? 0);
-  const whatsapp = body.whatsapp ?? "";
-  const notes = body.notes ?? "";
+    try {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fullName, email, company, annualRevenue, whatsapp, notes }),
+      });
 
-  if (!fullName || !email || !company || !annualRevenue)
-    return res.status(400).json({ success: false, message: "Missing required fields" });
+      const data = await res.json().catch(() => ({}));
 
-  try {
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT),
-      secure: Number(process.env.SMTP_PORT) === 465,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
-
-    const to = process.env.TO_EMAIL || "info@hespor.com";
-    const from = process.env.FROM_EMAIL || process.env.SMTP_USER;
-
-    await transporter.sendMail({
-      from,
-      to,
-      replyTo: email,
-      subject: `New Finance Application from ${fullName}`,
-      text: [
-        `Name: ${fullName}`,
-        `Email: ${email}`,
-        `Company: ${company}`,
-        `Annual Revenue (USD): ${annualRevenue}`,
-        `WhatsApp: ${whatsapp || "-"}`,
-        `Notes: ${notes || "-"}`,
-      ].join("\n"),
-    });
-
-    return res.status(200).json({ success: true });
-  } catch (err) {
-    return res.status(500).json({ success: false, message: "Email send failed" });
-  }
-}
+      if (res.ok && data.success) {
+        window.location.href = THANK_YOU_URL; // ✅ Redirect to Canva thank-you page
+      } else {
+        alert(data?.message || 'Submission failed. Please try again.');
+      }
+    } catch (err) {
+      alert('Network error. Please try again.');
+    }
+  });
+});
