@@ -1,39 +1,39 @@
-<!-- keep your existing HTML; just make sure your form has id="leadForm" and the inputs have the ids below -->
 <script>
-  (function () {
-    const form = document.getElementById('leadForm');
-    if (!form) return;
+  const API_URL = 'https://hespor-finance-form.vercel.app/api/submit-form';
+  const THANK_YOU_URL = 'https://finance.hespor.com/thank-you';
 
-    const API_URL = 'https://hespor-finance-form.vercel.app/api/submit-form'; // works on finance.hespor.com because API is in same project
-
-    form.addEventListener('submit', async function (e) {
+  const form = document.getElementById('financeForm');
+  if (form) {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      // read fields by id – keep your same IDs
-      const fullName      = document.getElementById('fullName')?.value?.trim();
-      const email         = document.getElementById('email')?.value?.trim();
-      const company       = document.getElementById('company')?.value?.trim();
-      const annualRevenue = document.getElementById('annualRevenue')?.value?.trim();
-      const whatsapp      = document.getElementById('whatsapp')?.value?.trim();
-      const notes         = document.getElementById('notes')?.value?.trim();
+      const fullName = document.getElementById('fullName')?.value?.trim();
+      const email = document.getElementById('email')?.value?.trim();
+      const company = document.getElementById('company')?.value?.trim();
+      const annualRevenue = Number(
+        document.getElementById('annualRevenue')?.value?.replace(/[^0-9.]/g, '')
+      );
+      const whatsapp = document.getElementById('whatsapp')?.value?.trim() || '';
+      const notes = document.getElementById('notes')?.value?.trim() || '';
 
-      try {
-        const r = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ fullName, email, company, annualRevenue, whatsapp, notes })
-        });
+      if (!fullName || !email || !company || !annualRevenue) {
+        alert('Please complete Full Name, Email, Company, and Annual Revenue.');
+        return;
+      }
 
-        const data = await r.json().catch(() => ({}));
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fullName, email, company, annualRevenue, whatsapp, notes }),
+      });
 
-        if (r.ok && data?.success) {
-          window.location.href = '/thank-you';
-        } else {
-          alert(data?.message || 'Submission failed. Please try again.');
-        }
-      } catch (err) {
-        alert('Network error. Please try again.');
+      const data = await res.json().catch(() => ({}));
+
+      if (res.ok && data.success) {
+        window.location.href = THANK_YOU_URL;
+      } else {
+        alert(data?.message || 'Submission failed. Please try again.');
       }
     });
-  })();
+  }
 </script>
