@@ -1,45 +1,48 @@
-// script.js (in repo root)
-
-const API_URL = 'https://hespor-finance-form.vercel.app/api/submit-form';
-const THANK_YOU_URL = 'https://finance.hespor.com/thank-you';
-
+// script.js
 document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById('financeForm');
+  const form = document.getElementById("financeForm");
   if (!form) return;
 
-  form.addEventListener('submit', async (e) => {
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const fullName = document.getElementById('fullName')?.value?.trim();
-    const email = document.getElementById('email')?.value?.trim();
-    const company = document.getElementById('company')?.value?.trim();
-    const annualRevenue = Number(
-      document.getElementById('annualRevenue')?.value?.replace(/[^0-9.]/g, '')
-    );
-    const whatsapp = document.getElementById('whatsapp')?.value?.trim() || '';
-    const notes = document.getElementById('notes')?.value?.trim() || '';
+    const fullName = document.getElementById("fullName")?.value?.trim();
+    const email = document.getElementById("email")?.value?.trim();
+    const company = document.getElementById("company")?.value?.trim();
+    const annualRevenue = document.getElementById("annualRevenue")?.value?.trim();
+    const whatsapp = document.getElementById("whatsapp")?.value?.trim();
+    const notes = document.getElementById("notes")?.value?.trim();
 
     if (!fullName || !email || !company || !annualRevenue) {
-      alert('Please complete Full Name, Email, Company, and Annual Revenue.');
+      alert("Please fill in all required fields.");
       return;
     }
 
     try {
-      const res = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fullName, email, company, annualRevenue, whatsapp, notes }),
+      const response = await fetch("https://hespor-finance-form.vercel.app/api/submit-form", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName,
+          email,
+          company,
+          annualRevenue,
+          whatsapp,
+          notes,
+        }),
       });
 
-      const data = await res.json().catch(() => ({}));
+      const data = await response.json();
 
-      if (res.ok && data.success) {
-        window.location.href = THANK_YOU_URL; // ✅ Redirect to Canva thank-you page
+      // ✅ Always redirect after successful submission
+      if (response.ok && data.success) {
+        window.location.href = "https://finance.hespor.com/thank-you";
       } else {
-        alert(data?.message || 'Submission failed. Please try again.');
+        alert("Submission failed. Please try again.");
       }
     } catch (err) {
-      alert('Network error. Please try again.');
+      console.error(err);
+      alert("Network error. Please try again later.");
     }
   });
 });
