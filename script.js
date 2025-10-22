@@ -1,31 +1,39 @@
-// script.js
-const form = document.getElementById('lead-form');
-if (form) {
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
+<!-- keep your existing HTML; just make sure your form has id="leadForm" and the inputs have the ids below -->
+<script>
+  (function () {
+    const form = document.getElementById('leadForm');
+    if (!form) return;
 
-    const payload = {
-      fullName: document.getElementById('fullName').value.trim(),
-      email: document.getElementById('email').value.trim(),
-      company: document.getElementById('company').value.trim(),
-      annualRevenue: document.getElementById('annualRevenue').value.trim(), // can include commas/$
-      whatsapp: document.getElementById('whatsapp').value.trim(),
-      notes: document.getElementById('notes').value.trim(),
-    };
+    const API_URL = '/api/submit-form'; // works on finance.hespor.com because API is in same project
 
-    const res = await fetch('https://hespor-finance-form.vercel.app/api/submit-form', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      // read fields by id – keep your same IDs
+      const fullName      = document.getElementById('fullName')?.value?.trim();
+      const email         = document.getElementById('email')?.value?.trim();
+      const company       = document.getElementById('company')?.value?.trim();
+      const annualRevenue = document.getElementById('annualRevenue')?.value?.trim();
+      const whatsapp      = document.getElementById('whatsapp')?.value?.trim();
+      const notes         = document.getElementById('notes')?.value?.trim();
+
+      try {
+        const r = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fullName, email, company, annualRevenue, whatsapp, notes })
+        });
+
+        const data = await r.json().catch(() => ({}));
+
+        if (r.ok && data?.success) {
+          window.location.href = '/thank-you';
+        } else {
+          alert(data?.message || 'Submission failed. Please try again.');
+        }
+      } catch (err) {
+        alert('Network error. Please try again.');
+      }
     });
-
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      alert(`Submit error: ${data.message || res.statusText}`);
-      return;
-    }
-
-    // success → send user to Canva thank-you on your domain
-    window.location.href = 'https://finance.hespor.com/thank-you';
-  });
-}
+  })();
+</script>
