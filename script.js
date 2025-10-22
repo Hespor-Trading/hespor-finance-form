@@ -1,26 +1,30 @@
-<script>
-  const API_URL = 'https://hespor-finance-form.vercel.app/api/submit-form';
-  const THANK_YOU_URL = 'https://finance.hespor.com/thank-you';
+// script.js (in repo root)
 
+const API_URL = 'https://hespor-finance-form.vercel.app/api/submit-form';
+const THANK_YOU_URL = 'https://finance.hespor.com/thank-you';
+
+document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById('financeForm');
-  if (form) {
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
+  if (!form) return;
 
-      const fullName = document.getElementById('fullName')?.value?.trim();
-      const email = document.getElementById('email')?.value?.trim();
-      const company = document.getElementById('company')?.value?.trim();
-      const annualRevenue = Number(
-        document.getElementById('annualRevenue')?.value?.replace(/[^0-9.]/g, '')
-      );
-      const whatsapp = document.getElementById('whatsapp')?.value?.trim() || '';
-      const notes = document.getElementById('notes')?.value?.trim() || '';
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-      if (!fullName || !email || !company || !annualRevenue) {
-        alert('Please complete Full Name, Email, Company, and Annual Revenue.');
-        return;
-      }
+    const fullName = document.getElementById('fullName')?.value?.trim();
+    const email = document.getElementById('email')?.value?.trim();
+    const company = document.getElementById('company')?.value?.trim();
+    const annualRevenue = Number(
+      document.getElementById('annualRevenue')?.value?.replace(/[^0-9.]/g, '')
+    );
+    const whatsapp = document.getElementById('whatsapp')?.value?.trim() || '';
+    const notes = document.getElementById('notes')?.value?.trim() || '';
 
+    if (!fullName || !email || !company || !annualRevenue) {
+      alert('Please complete Full Name, Email, Company, and Annual Revenue.');
+      return;
+    }
+
+    try {
       const res = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -30,10 +34,12 @@
       const data = await res.json().catch(() => ({}));
 
       if (res.ok && data.success) {
-        window.location.href = THANK_YOU_URL;
+        window.location.href = THANK_YOU_URL; // ✅ Redirect to Canva thank-you page
       } else {
         alert(data?.message || 'Submission failed. Please try again.');
       }
-    });
-  }
-</script>
+    } catch (err) {
+      alert('Network error. Please try again.');
+    }
+  });
+});
