@@ -1,17 +1,19 @@
 // script.js
 document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("financeForm");
+  // Your form's id in index.html is "leadForm"
+  const form = document.getElementById("leadForm");
   if (!form) return;
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const fullName = document.getElementById("fullName")?.value?.trim();
-    const email = document.getElementById("email")?.value?.trim();
-    const company = document.getElementById("company")?.value?.trim();
-    const annualRevenue = document.getElementById("annualRevenue")?.value?.trim();
-    const whatsapp = document.getElementById("whatsapp")?.value?.trim();
-    const notes = document.getElementById("notes")?.value?.trim();
+    // In index.html the inputs use NAMEs (not IDs). Read from names:
+    const fullName = form.elements["name"]?.value?.trim();
+    const email = form.elements["email"]?.value?.trim();
+    const company = form.elements["company"]?.value?.trim();
+    const annualRevenue = form.elements["annualRevenue"]?.value?.trim();
+    const phone = form.elements["phone"]?.value?.trim();       // optional
+    const message = form.elements["message"]?.value?.trim();   // optional
 
     if (!fullName || !email || !company || !annualRevenue) {
       alert("Please fill in all required fields.");
@@ -19,29 +21,31 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-      const response = await fetch("https://hespor-finance-form.vercel.app/api/submit-form", {
+      const response = await fetch("/api/submit-form", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        // API expects whatsapp + notes; map from phone + message
         body: JSON.stringify({
-          fullName,
+          name: fullName,
           email,
           company,
           annualRevenue,
-          whatsapp,
-          notes,
+          whatsapp: phone || "",
+          notes: message || "",
         }),
       });
 
       const data = await response.json();
 
-      // ✅ Always redirect after successful submission
-      if (response.ok && data.success) {
+      // Always redirect on success
+      if (response.ok && data?.success) {
         window.location.href = "https://finance.hespor.com/thank-you";
       } else {
+        console.error("Submit failed:", data);
         alert("Submission failed. Please try again.");
       }
     } catch (err) {
-      console.error(err);
+      console.error("Network error:", err);
       alert("Network error. Please try again later.");
     }
   });
