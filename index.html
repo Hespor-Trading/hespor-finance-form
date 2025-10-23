@@ -3,27 +3,129 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- SEO: brand title with proper capitalization -->
-  <title>Hespor Finance – Official Site | Trade Credit & Supplier Financing</title>
-
-  <!-- SEO: persuasive, policy-safe description -->
   <meta name="description" content="Scale safely with Hespor Finance. We help Amazon, Shopify, and Walmart sellers access 90–120 day Sinosure-backed supplier payment terms—secure, collateral-free, and growth-ready." />
+  <title>Hespor Finance – Official Site | Trade Credit & Supplier Financing</title>
+  <link rel="icon" href="/favicon.png" type="image/png" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #111827;
+    }
 
-  <!-- Favicon/brand icon (uses your existing file name so no other change needed) -->
-  <link rel="icon" href="hespor-logo.png" type="image/png" />
+    .container {
+      max-width: 1100px;
+      width: 100%;
+      margin: 20px;
+      display: flex;
+      background: #fff;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      border-radius: 16px;
+      overflow: hidden;
+    }
 
-  <!-- Optional: tell crawlers not to use a random snippet as title -->
-  <meta name="apple-mobile-web-app-title" content="Hespor Finance" />
+    .form-section {
+      flex: 1;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
 
-  <!-- Organization schema to attach logo + name to the domain -->
+    .form-section img.logo {
+      width: 180px;
+      height: auto;
+      margin-bottom: 20px;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 28px;
+      font-weight: 600;
+    }
+
+    p {
+      margin: 0 0 24px;
+      color: #4B5563;
+    }
+
+    form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    form .full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 6px;
+      color: #374151;
+    }
+
+    input, textarea, select, button {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #E5E7EB;
+      border-radius: 10px;
+      font-size: 14px;
+      box-sizing: border-box;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    button {
+      background: #1F4EB8;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    button:hover {
+      background: #173e93;
+    }
+
+    .image-section {
+      width: 42%;
+      background: #F3F4F6 url('hero.jpg') center/cover no-repeat;
+      min-height: 520px;
+    }
+
+    @media (max-width: 800px) {
+      .container {
+        flex-direction: column;
+      }
+      .image-section {
+        order: -1;
+        height: 250px;
+      }
+      .form-section {
+        padding: 25px;
+      }
+    }
+  </style>
+
+  <!-- Structured data so Google shows brand + icon -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": "Hespor Finance",
     "url": "https://finance.hespor.com",
-    "logo": "https://hespor-finance-form.vercel.app/hespor-logo.png",
+    "logo": "https://finance.hespor.com/favicon.png",
     "email": "info@hespor.com",
     "telephone": "+1-236-866-1249",
     "address": {
@@ -35,109 +137,53 @@
     }
   }
   </script>
-
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Inter', sans-serif;
-      background: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-    }
-
-    .container {
-      display: flex;
-      flex-direction: row;
-      width: 90%;
-      max-width: 1000px;
-      background: #fff;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-      border-radius: 16px;
-      overflow: hidden;
-    }
-
-    .form-section {
-      flex: 1;
-      padding: 32px;
-    }
-
-    .image-section {
-      flex: 1;
-      background: url('hero.jpg') center/cover no-repeat;
-      min-height: 480px;
-    }
-
-    h1 {
-      margin: 0 0 8px;
-      font-weight: 600;
-      font-size: 28px;
-    }
-
-    p.sub {
-      margin: 0 0 24px;
-      color: #4b5563;
-      line-height: 1.5;
-      font-size: 14px;
-    }
-
-    form {
-      display: grid;
-      gap: 12px;
-    }
-
-    input, textarea, button {
-      font-family: inherit;
-      font-size: 14px;
-    }
-
-    input, textarea {
-      width: 100%;
-      padding: 12px 14px;
-      border: 1px solid #e5e7eb;
-      border-radius: 10px;
-      outline: none;
-    }
-
-    button {
-      background: #1f4fbf;
-      color: #fff;
-      border: none;
-      padding: 12px 16px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    @media (max-width: 900px) {
-      .container { flex-direction: column; }
-      .image-section { min-height: 220px; }
-    }
-  </style>
 </head>
 <body>
   <div class="container">
     <div class="form-section">
-      <h1>Hespor Finance Application</h1>
-      <p class="sub">Access 90–120 day, Sinosure-backed supplier terms with your Chinese suppliers — no collateral or interest.</p>
+      <img src="hespor-logo.png" alt="Hespor Finance" class="logo" />
+      <h2>Apply for Supplier Payment Terms</h2>
+      <p>Enjoy 90–120 day payment terms with your Chinese suppliers — no collateral or interest.</p>
 
-      <form id="leadForm" novalidate>
-        <input type="text" name="name" placeholder="Full Name" required />
-        <input type="email" name="email" placeholder="Email Address" required />
-        <input type="text" name="company" placeholder="Company Name" required />
-        <input type="text" name="annualRevenue" placeholder="Annual Revenue (USD)" required />
-        <input type="text" name="phone" placeholder="WhatsApp Number (optional)" />
-        <textarea name="message" rows="3" placeholder="Additional Info (optional)"></textarea>
-        <button type="submit">Submit Application</button>
+      <form id="leadForm">
+        <div>
+          <label for="name">Full name*</label>
+          <input type="text" name="name" placeholder="John Doe" required />
+        </div>
+        <div>
+          <label for="email">Email*</label>
+          <input type="email" name="email" placeholder="name@company.com" required />
+        </div>
+        <div>
+          <label for="company">Company*</label>
+          <input type="text" name="company" placeholder="Company Inc." required />
+        </div>
+        <div>
+          <label for="annualRevenue">Annual revenue (USD)*</label>
+          <select name="annualRevenue" required>
+            <option value="">Select…</option>
+            <option value="0-250k">0–250k</option>
+            <option value="250k-1m">250k–1m</option>
+            <option value="1m-5m">1m–5m</option>
+            <option value="5m+">5m+</option>
+          </select>
+        </div>
+        <div class="full">
+          <label for="phone">WhatsApp / Phone (optional)</label>
+          <input type="text" name="phone" placeholder="+1 236 866 1249" />
+        </div>
+        <div class="full">
+          <label for="message">Notes (optional)</label>
+          <textarea name="message" placeholder="Anything we should know?"></textarea>
+        </div>
+        <div class="full">
+          <button type="submit">Submit application</button>
+        </div>
       </form>
     </div>
-
     <div class="image-section"></div>
   </div>
 
-  <script src="script.js" defer></script>
+  <script src="script.js"></script>
 </body>
 </html>
