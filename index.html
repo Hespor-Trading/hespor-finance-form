@@ -3,8 +3,39 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hespor Finance Application</title>
-  <link rel="icon" href="hespor-logo.png" />
+
+  <!-- SEO: brand title with proper capitalization -->
+  <title>Hespor Finance – Official Site | Trade Credit & Supplier Financing</title>
+
+  <!-- SEO: persuasive, policy-safe description -->
+  <meta name="description" content="Scale safely with Hespor Finance. We help Amazon, Shopify, and Walmart sellers access 90–120 day Sinosure-backed supplier payment terms—secure, collateral-free, and growth-ready." />
+
+  <!-- Favicon/brand icon (uses your existing file name so no other change needed) -->
+  <link rel="icon" href="hespor-logo.png" type="image/png" />
+
+  <!-- Optional: tell crawlers not to use a random snippet as title -->
+  <meta name="apple-mobile-web-app-title" content="Hespor Finance" />
+
+  <!-- Organization schema to attach logo + name to the domain -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Hespor Finance",
+    "url": "https://finance.hespor.com",
+    "logo": "https://hespor-finance-form.vercel.app/hespor-logo.png",
+    "email": "info@hespor.com",
+    "telephone": "+1-236-866-1249",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "4880 Lougheed Hwy",
+      "addressLocality": "Burnaby",
+      "addressRegion": "BC",
+      "addressCountry": "CA"
+    }
+  }
+  </script>
+
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <style>
     body {
@@ -31,77 +62,67 @@
 
     .form-section {
       flex: 1;
-      padding: 40px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    .form-section img.logo {
-      width: 120px;
-      margin-bottom: 20px;
-    }
-
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-
-    input, select, textarea {
-      padding: 12px 14px;
-      font-size: 15px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    input:focus, select:focus, textarea:focus {
-      border-color: #008060;
-    }
-
-    button {
-      background: #008060;
-      color: #fff;
-      border: none;
-      padding: 14px;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    button:hover {
-      background: #006c50;
+      padding: 32px;
     }
 
     .image-section {
       flex: 1;
-      background: url("hero.jpg") center center / cover no-repeat;
-      min-height: 500px;
+      background: url('hero.jpg') center/cover no-repeat;
+      min-height: 480px;
     }
 
-    @media (max-width: 800px) {
-      .container {
-        flex-direction: column;
-      }
-      .image-section {
-        order: -1;
-        height: 250px;
-      }
-      .form-section {
-        padding: 25px;
-      }
+    h1 {
+      margin: 0 0 8px;
+      font-weight: 600;
+      font-size: 28px;
+    }
+
+    p.sub {
+      margin: 0 0 24px;
+      color: #4b5563;
+      line-height: 1.5;
+      font-size: 14px;
+    }
+
+    form {
+      display: grid;
+      gap: 12px;
+    }
+
+    input, textarea, button {
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      outline: none;
+    }
+
+    button {
+      background: #1f4fbf;
+      color: #fff;
+      border: none;
+      padding: 12px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    @media (max-width: 900px) {
+      .container { flex-direction: column; }
+      .image-section { min-height: 220px; }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="form-section">
-      <img src="hespor-logo.png" alt="Hespor Finance" class="logo" />
-      <h2>Apply for Supplier Payment Terms</h2>
-      <p>Enjoy 90–120 day payment terms with your Chinese suppliers — no collateral or interest.</p>
+      <h1>Hespor Finance Application</h1>
+      <p class="sub">Access 90–120 day, Sinosure-backed supplier terms with your Chinese suppliers — no collateral or interest.</p>
 
       <form id="leadForm" novalidate>
         <input type="text" name="name" placeholder="Full Name" required />
