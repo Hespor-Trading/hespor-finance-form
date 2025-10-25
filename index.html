@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Scale safely with Hespor Finance. We help Amazon, Shopify, and Walmart sellers access 90–120 day Sinosure-backed supplier payment terms—secure, collateral-free, and growth-ready." />
+  <meta name="description" content="Scale safely with Hespor Fin...ier payment terms—secure, collateral-free, and growth-ready." />
   <title>Hespor Finance – Official Site | Trade Credit & Supplier Financing</title>
   <link rel="icon" href="/favicon.png" type="image/png" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
@@ -104,39 +104,35 @@
       min-height: 520px;
     }
 
-    @media (max-width: 800px) {
-      .container {
-        flex-direction: column;
+    /* --- Mobile tweaks ONLY (no functional changes) --- */
+    @media (max-width: 900px) {
+      .container { 
+        flex-direction: column; 
+        margin: 12px;
+        border-radius: 12px;
       }
-      .image-section {
-        order: -1;
-        height: 250px;
+      .image-section { 
+        order: -1; 
+        width: 100%;
+        min-height: 220px; 
+        border-bottom: 1px solid #E5E7EB;
       }
-      .form-section {
-        padding: 25px;
+      .form-section { 
+        padding: 20px; 
       }
+      form { 
+        grid-template-columns: 1fr; 
+        gap: 12px;
+      }
+      .form-section img.logo { 
+        width: 140px; 
+        margin-bottom: 14px;
+      }
+      h2 { font-size: 22px; }
+      p { font-size: 14px; }
+      button { height: 44px; }
     }
   </style>
-
-  <!-- Structured data so Google shows brand + icon -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "Hespor Finance",
-    "url": "https://finance.hespor.com",
-    "logo": "https://finance.hespor.com/favicon.png",
-    "email": "info@hespor.com",
-    "telephone": "+1-236-866-1249",
-    "address": {
-      "@type": "PostalAddress",
-      "streetAddress": "4880 Lougheed Hwy",
-      "addressLocality": "Burnaby",
-      "addressRegion": "BC",
-      "addressCountry": "CA"
-    }
-  }
-  </script>
 </head>
 <body>
   <div class="container">
